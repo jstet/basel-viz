@@ -1,6 +1,17 @@
 ### Tips for developing
-After making chnages to the databases setup code, run:
+After making changes to the databases setup code, run:
 ```
 docker compose down --volumes
 docker-compose up --build --force-recreate
 ```
+
+You can start the database only with (while in root folder):
+```
+docker compose -f database.yml  up
+```
+After making changes to the databases setup code, run:
+```
+docker compose -f database.yml down --volumes
+docker compose -f database.yml  up --build --force-recreate
+```
+
