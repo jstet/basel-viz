@@ -2,15 +2,14 @@ import os
 import uvicorn
 import sys
 import sqlalchemy
-from fastapi import FastAPI, status, Depends
+from fastapi import FastAPI, status, Depends, Query
+from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-import models 
-from helpers import generate_model
 from database import *
-
-generate_model(engine=engine, metadata=metadata, outfile='models.py') 
-
+from crud import *
+from models import *
+from schemas import *
 
 
 app = FastAPI(title="FDS Statistics API")
@@ -22,10 +21,24 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+#Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
+# ORJSON is faster than normal fastapi json 
     
-@app.get("/")
-def root():
-    return "hu"
+@app.get("/all",response_model=Standard, response_class=ORJSONResponse)
+def get_all(db: Session = Depends(get_db)):
+    return ORJSONResponse({"all" : query_get_all(db)})
+
+@app.get("/country",response_model=Standard, response_class=ORJSONResponse)
+def country(c: str = Query(max_length=2), db: Session = Depends(get_db)):
+    if c:
+        results = query_country(db, c)
+    return ORJSONResponse({"all" : results})
 
 

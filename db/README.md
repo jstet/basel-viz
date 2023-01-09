@@ -7,7 +7,7 @@ docker-compose up --build --force-recreate
 
 You can start the database only with (while in root folder):
 ```
-docker compose -f database.yml  up
+docker compose -f database.yml  up -d
 ```
 After making changes to the databases setup code, run:
 ```
