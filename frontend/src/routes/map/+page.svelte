@@ -1,8 +1,8 @@
 <script>
-    import {control, divIcon, DomUtil, layerGroup, map, polyline, tileLayer} from "leaflet";
+    import {control, divIcon, DomUtil, layerGroup, map, polyline, tileLayer, LatLng} from "leaflet";
     import * as markerIcons from './markers.js';
-    import * as d3 from "d3"
 
+    import {geoTransform, select, geoPath} from "d3";
 
     const markerLocations = [
         [29.8283, -96.5795],
@@ -17,7 +17,7 @@
     const initialView = [39.8283, -98.5795];
 
     function createMap(container) {
-        let m = map(container, {preferCanvas: false}).setView(initialView, 4);
+        let m = map(container, {preferCanvas: false}).setView(initialView, 2);
         tileLayer(
             'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
             {
@@ -35,29 +35,115 @@
         return polyline(markerLocations, {color: '#E4E', opacity: 0.5, weight: 5});
     }
 
-    let lineLayers;
+    const rawJson = {
+        "type": "FeatureCollection", "features": [
+            {
+                "type": "Feature",
+                "id": "01",
+                "properties": {"name": "Alabama"},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [-87.359296, 35.00118]
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 2,
+                "properties": {"name": "Brazil"},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [-49.2712, -25.4296]
+                }
+            }
+        ]
+    }
 
-    function createGlyphs(map1) {
-        var d3Svg = d3.select(map1.getPanes().overlayPane).append("svg")
+    const otherPoints = {
+        "type": "FeatureCollection", "features": [
+            {
+                "type": "Feature",
+                "id": "01",
+                "properties": {"name": "Germany"},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [51.1334813439932, 10.0183432948567]
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 2,
+                "properties": {"name": "France"},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [47.8249046208979, 2.61878695312962]
+                }
+            }
+        ]
+    }
+
+    function createPoints(map1) {
+        var d3Svg2 = select(map1.getPanes().overlayPane).select("svg")
+        var g = d3Svg2.append("g").attr("class", "leaflet-zoom-hide")
+        var feature = g.selectAll("circle").data(otherPoints.features).enter().append("circle")
+            .style("fill", "teal")
+
+        function update() {
+            feature.attr("cx",function(d) {console.log(d, map1.latLngToLayerPoint(d.geometry.coordinates), map1.latLngToLayerPoint(d.geometry.coordinates).x ); return map1.latLngToLayerPoint(d.geometry.coordinates).x})
+            feature.attr("cy",function(d) { return map1.latLngToLayerPoint(d.geometry.coordinates).y})
+            feature.attr("r",function(d) { return 1*Math.pow(2, map1.getZoom())})
+        }
+        map1.on("zoom", update);
+        update();
+    }
+
+    function createPaths(map1) {
+        var d3Svg = select(map1.getPanes().overlayPane).append("svg")
         var g = d3Svg.append("g").attr("class", "leaflet-zoom-hide")
 
-        d3.json("us-states.json", function(error, collection) {
-            if (error) throw error;
+        //d3.json("us-states.json", function(error, collection) {
+        //    if (error) throw error;
 
-            // code here
-        });
+        // code here
+        //       });
         function projectPoint(x, y) {
-            var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+            const point = map1.latLngToLayerPoint(new LatLng(y, x));
             this.stream.point(point.x, point.y);
+        }
+
+        const transform = geoTransform({point: projectPoint})
+        const path = geoPath().projection(transform);
+        const feature = g.selectAll("path")
+            .data(rawJson.features)
+            .enter().append("path");
+
+        map1.on('zoomend', reset);
+        reset();
+
+        function reset() {
+            //console.log("Reset called")
+            const bounds = path.bounds(rawJson)
+            const topLeft = bounds[0]
+            const bottomRight = bounds[1];
+
+            d3Svg.attr("width", bottomRight[0] - topLeft[0])
+                .attr("height", bottomRight[1] - topLeft[1])
+                .style("left", topLeft[0] + "px")
+                .style("top", topLeft[1] + "px");
+
+            g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+            feature.attr("d", path);
         }
     }
 
-    function onMount(container) {
-        let map1 = createMap(container);
+    let map1
 
-        lineLayers = createLines();
+    function onMount(container) {
+        map1 = createMap(container);
+        const lineLayers = createLines();
         lineLayers.addTo(map1);
-        createGlyphs(map1 = map1)
+        createPaths(map1 = map1)
+
+        createPoints(map1)
 
         return {
             destroy: () => {
