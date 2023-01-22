@@ -1,6 +1,7 @@
 <script>
     import Map from "$lib/components/Map.svelte";
     import Sidepanel from "$lib/components/Sidepanel.svelte";
+    export let data;
 </script>
 
 <div class="flex w-screen h-screen">
