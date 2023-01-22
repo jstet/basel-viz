@@ -12,6 +12,8 @@
 
     import { geoTransform, select, geoPath } from "d3";
 
+    import countries from "$lib/geojson/countries.json"
+
     const markerLocations = [
         [29.8283, -96.5795],
         [37.8283, -90.5795],
@@ -36,7 +38,7 @@
                 //north east
                 [90, 200],
             ],
-        }).setView(initialView, 2.4);
+        }).setView(initialView, 3);
         // available basemaps: https://leaflet-extras.github.io/leaflet-providers/preview/
         tileLayer(
             "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -83,47 +85,25 @@
         ],
     };
 
-    const otherPoints = {
-        type: "FeatureCollection",
-        features: [
-            {
-                type: "Feature",
-                id: "01",
-                properties: { name: "Germany" },
-                geometry: {
-                    type: "Point",
-                    coordinates: [51.1334813439932, 10.0183432948567],
-                },
-            },
-            {
-                type: "Feature",
-                id: 2,
-                properties: { name: "France" },
-                geometry: {
-                    type: "Point",
-                    coordinates: [47.8249046208979, 2.61878695312962],
-                },
-            },
-        ],
-    };
+
 
     function createPoints(map1) {
         var d3Svg2 = select(map1.getPanes().overlayPane).select("svg");
         var g = d3Svg2.append("g").attr("class", "leaflet-zoom-hide");
         var feature = g
             .selectAll("circle")
-            .data(otherPoints.features)
+            .data(countries.features)
             .enter()
             .append("circle")
             .style("fill", "teal");
 
         function update() {
             feature.attr("cx", function (d) {
-                console.log(
-                    d,
-                    map1.latLngToLayerPoint(d.geometry.coordinates),
-                    map1.latLngToLayerPoint(d.geometry.coordinates).x
-                );
+                // console.log(
+                //     d,
+                //     map1.latLngToLayerPoint(d.geometry.coordinates),
+                //     map1.latLngToLayerPoint(d.geometry.coordinates).x
+                // );
                 return map1.latLngToLayerPoint(d.geometry.coordinates).x;
             });
             feature.attr("cy", function (d) {

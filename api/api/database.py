@@ -1,8 +1,11 @@
 from sqlalchemy import create_engine,MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5434/main"
+SQLALCHEMY_DATABASE_URL = os.getenv("POSTGRES_URL")
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL

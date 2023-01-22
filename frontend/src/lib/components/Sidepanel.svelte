@@ -1,7 +1,15 @@
 <script>
+    import { goto } from '$app/navigation'
+    import { page } from '$app/stores'
     let selected;
     let normalize = false;
-    $: console.log(normalize);
+
+    async function set_url() {
+        const url = $page.url.searchParams;
+        url.set("country", selected);
+        url.set("normalize", normalize)
+        await goto(`?${url}`, {invalidateAll: true});
+    }
 </script>
 
 <div class="p-3 ">
@@ -12,16 +20,16 @@
     <div>
         <div class="mb-2">
             <label for="country">Choose a country:</label>
-            <select name="country" id="country" bind:value={selected}>
-                <option selected value="Germany">All</option>
-                <option value="Germany">Germany</option>
-                <option value="France">France</option>
+            <select name="country" id="country" bind:value={selected} on:change={set_url}>
+                <option selected value="all">All</option>
+                <option value="de">Germany</option>
+                <option value="fr">France</option>
             </select>
         </div>
 
         <div>
             <label>
-                <input type=checkbox bind:checked={normalize}>
+                <input type="checkbox" bind:checked={normalize} on:change={set_url}/>
                 Normalize
             </label>
         </div>
