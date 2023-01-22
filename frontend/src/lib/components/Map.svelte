@@ -38,7 +38,7 @@
                 //north east
                 [90, 200],
             ],
-        }).setView(initialView, 2.4);
+        }).setView(initialView, 3);
         // available basemaps: https://leaflet-extras.github.io/leaflet-providers/preview/
         tileLayer(
             "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -99,11 +99,11 @@
 
         function update() {
             feature.attr("cx", function (d) {
-                console.log(
-                    d,
-                    map1.latLngToLayerPoint(d.geometry.coordinates),
-                    map1.latLngToLayerPoint(d.geometry.coordinates).x
-                );
+                // console.log(
+                //     d,
+                //     map1.latLngToLayerPoint(d.geometry.coordinates),
+                //     map1.latLngToLayerPoint(d.geometry.coordinates).x
+                // );
                 return map1.latLngToLayerPoint(d.geometry.coordinates).x;
             });
             feature.attr("cy", function (d) {

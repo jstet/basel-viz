@@ -8,7 +8,7 @@
         const url = $page.url.searchParams;
         url.set("country", selected);
         url.set("normalize", normalize)
-        await goto(`?${url}`);
+        await goto(`?${url}`, {invalidateAll: true});
     }
 </script>
 
@@ -21,9 +21,9 @@
         <div class="mb-2">
             <label for="country">Choose a country:</label>
             <select name="country" id="country" bind:value={selected} on:change={set_url}>
-                <option selected value="Germany">All</option>
-                <option value="Germany">Germany</option>
-                <option value="France">France</option>
+                <option selected value="all">All</option>
+                <option value="de">Germany</option>
+                <option value="fr">France</option>
             </select>
         </div>
 
