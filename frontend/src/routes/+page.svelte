@@ -1,8 +1,9 @@
 <script>
     import Map from "$lib/components/Map.svelte";
+    import Sidepanel from "$lib/components/Sidepanel.svelte";
 </script>
 
 <div class="flex w-screen h-screen">
-    <div class="font-bold text-2xl w-1/5">h2</div>
+    <div class="w-1/5 border-r border-neutral-400 z-10"><Sidepanel /></div>
     <div class="w-4/5 h-100"><Map /></div>
 </div>

@@ -22,10 +22,21 @@
         [38.4, -122.5795],
     ];
 
-    const initialView = [0, 0];
+    const initialView = [20, 0];
 
     function createMap(container) {
-        let m = map(container, { preferCanvas: false }).setView(initialView, 2);
+        // Setting initial position and zoom of map and restricting zoom posibilites
+        let m = map(container, {
+            preferCanvas: false,
+            maxZoom: 8,
+            minZoom: 2,
+            maxBounds: [
+                //south west
+                [-90, -200],
+                //north east
+                [90, 200],
+            ],
+        }).setView(initialView, 2.4);
         // available basemaps: https://leaflet-extras.github.io/leaflet-providers/preview/
         tileLayer(
             "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
