@@ -18,6 +18,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"<<-EO
     UN5_2 BOOLEAN,
     UN6_1 BOOLEAN,
     UN6_2 BOOLEAN,
+
     UN8 BOOLEAN,
     UN9 BOOLEAN
     );
