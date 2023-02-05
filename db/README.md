@@ -5,7 +5,7 @@ docker compose down --volumes
 docker-compose up --build --force-recreate
 ```
 
-You can start the database only with (while in root folder):
+You can start only the database with (while in root folder):
 ```
 docker compose -f database.yml  up -d
 ```
