@@ -5,7 +5,9 @@ RUN sed -i -e 's/\r$//' docker-entrypoint-initdb.d/init.sh
 # copying data to container
 RUN mkdir /data
 RUN apt-get update && apt-get -y install wget
-RUN wget https://raw.githubusercontent.com/jstet/Basel_Convention_Scraper/main/output/processed/clean.csv -O /data/exports.csv
+# downloading flows
+RUN wget https://raw.githubusercontent.com/jstet/Basel_Convention_Scraper/main/output/processed/aggregated.csv -O /data/flows.csv
+RUN wget https://raw.githubusercontent.com/jstet/Basel_Convention_Scraper/main/output/processed/coords.csv -O /data/coords.csv
 # copying postgres config to container
 COPY ./postgresql.conf etc/postgresql/postgresql.conf
 CMD ["-c", "config_file=/etc/postgresql/postgresql.conf"]
