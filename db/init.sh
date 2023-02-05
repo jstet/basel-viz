@@ -27,7 +27,7 @@ FROM '/data/flows.csv'
 CSV HEADER DELIMITER ',';
 
  CREATE TABLE coords(
-    country VARCHAR(2),
+    country VARCHAR(2) PRIMARY KEY,
     lat FLOAT,
     lon FLOAT
     );

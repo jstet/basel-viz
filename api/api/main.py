@@ -31,14 +31,11 @@ def get_db():
 
 # ORJSON is faster than normal fastapi json 
     
-@app.get("/all",response_model=Standard, response_class=ORJSONResponse)
-def get_all(db: Session = Depends(get_db)):
-    return ORJSONResponse({"all" : query_get_all(db)})
-
-@app.get("/country",response_model=Standard, response_class=ORJSONResponse)
-def country(c: str = Query(max_length=2), db: Session = Depends(get_db)):
+@app.get("/",response_model=Line, response_class=ORJSONResponse)
+def get_all(c: str = Query(max_length=2), db: Session = Depends(get_db)):
     if c:
         results = query_country(db, c)
     return ORJSONResponse({"all" : results})
+
 
 
