@@ -8,21 +8,12 @@
         polyline,
         tileLayer,
         LatLng,
+        svg
     } from "leaflet";
 
-    import { geoTransform, select, geoPath } from "d3";
+    import { geoTransform, select, geoPath, arc, pie, scaleOrdinal } from "d3";
 
     import countries from "$lib/geojson/countries.json"
-
-    const markerLocations = [
-        [29.8283, -96.5795],
-        [37.8283, -90.5795],
-        [43.8283, -102.5795],
-        [48.4, -122.5795],
-        [43.6, -79.5795],
-        [36.8283, -100.5795],
-        [38.4, -122.5795],
-    ];
 
     const initialView = [20, 0];
 
@@ -49,56 +40,76 @@
                 maxZoom: 20,
             }
         ).addTo(m);
-
         return m;
     }
-
-    function createLines() {
-        return polyline(markerLocations, {
-            color: "#E4E",
-            opacity: 0.5,
-            weight: 5,
-        });
-    }
-
-    const rawJson = {
-        type: "FeatureCollection",
-        features: [
-            {
-                type: "Feature",
-                id: "01",
-                properties: { name: "Alabama" },
-                geometry: {
-                    type: "Point",
-                    coordinates: [-87.359296, 35.00118],
-                },
-            },
-            {
-                type: "Feature",
-                id: 2,
-                properties: { name: "Brazil" },
-                geometry: {
-                    type: "Point",
-                    coordinates: [-49.2712, -25.4296],
-                },
-            },
-        ],
-    };
-
-
-
     function createPoints(map1) {
-        var d3Svg2 = select(map1.getPanes().overlayPane).select("svg");
-        var g = d3Svg2.append("g").attr("class", "leaflet-zoom-hide");
-        var feature = g
-            .selectAll("circle")
-            .data(countries.features)
-            .enter()
-            .append("circle")
-            .style("fill", "teal");
+        var data2 = [{
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Andorra",
+                        "code": "ad",
+                        "un_classes": [
+                            { label: "B", value: 20 },
+                            { label: "C", value: 30 },
+                            { label: "D", value: 25 },
+                            { label: "A", value: 10 },
+                            { label: "E", value: 50 },
+                            { label: "F", value: 15 },
+                        ]
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            42.5486542501806,
+                            1.57676643468505
+                        ]
+                    }
+                }]
+        //Adds a svg to the map which always contains all the things we add into it
+        svg({clickable:true}).addTo(map1)
+        var d3Svg = select(map1.getPanes().overlayPane).select("svg")
+        d3Svg.append("g").attr("id", "donutGroup")
+        var donutGroups = d3Svg.select("#donutGroup").selectAll("g").data(countries.features).enter().append("g")
 
-        function update() {
-            feature.attr("cx", function (d) {
+        var colorScale = scaleOrdinal()
+            .range(["#7F3C8D","#11A579","#3969AC","#F2B701","#E73F74","#80BA5A","#E68310",
+                    "#008695","#CF1C90","#f97b72","#4b4b8f","#A5AA99"]) // bold from carto.com
+
+        //arc generator
+
+
+        // pie generator
+        var pie1 = pie()
+            .sort(null)
+            .value(function(d) {return d.value});
+
+
+        //slices
+        var slice1 = donutGroups.selectAll("path")
+            //.data(d => pie1(d.properties.un_classes))
+            .data(pie1(data2[0].properties.un_classes))
+            .enter()
+            .append("path")
+            .attr("fill", function(d) { return colorScale(d.data.label); });
+
+
+        function update(e) {
+            var radius = 20;
+                ///0.5 * Math.pow(2,e.zoom);
+
+            var arc1 = arc()
+                .innerRadius(radius*0.5)
+                .outerRadius(radius);
+
+            donutGroups.selectAll("path")
+                .attr("d", arc1)
+
+            donutGroups.attr("style", function (d) {
+                var coord = map1._latLngToNewLayerPoint(d.geometry.coordinates, e.zoom, e.center);
+                return 'transform: translate('+coord.x+'px,'+coord.y+'px)';
+            })
+            /*
+            slice1.attr("cx", function (d) {
                 // console.log(
                 //     d,
                 //     map1.latLngToLayerPoint(d.geometry.coordinates),
@@ -106,71 +117,78 @@
                 // );
                 return map1.latLngToLayerPoint(d.geometry.coordinates).x;
             });
-            feature.attr("cy", function (d) {
+            slice1.attr("cy", function (d) {
                 return map1.latLngToLayerPoint(d.geometry.coordinates).y;
             });
             feature.attr("r", function (d) {
                 return 1 * Math.pow(2, map1.getZoom());
-            });
+            });*/
         }
-        map1.on("zoom", update);
-        update();
+        map1.on("zoomanim", e => update(e));
+        update({"zoom":map1.getZoom(), "center": map1.getCenter()});
     }
+    function createLinesBetweenCountries(map1){
+        var d3Svg = select(map1.getPanes().overlayPane).select("svg")
+        d3Svg.append("g").attr("id", "pathGroup")
+        var pathGroups = d3Svg.select("#pathGroup").selectAll("g").data(countries.features).enter().append("g")
 
-    function createPaths(map1) {
-        var d3Svg = select(map1.getPanes().overlayPane).append("svg");
-        var g = d3Svg.append("g").attr("class", "leaflet-zoom-hide");
+        function selectRandomNotGiven(length, index){
 
-        //d3.json("us-states.json", function(error, collection) {
-        //    if (error) throw error;
-
-        // code here
-        //       });
-        function projectPoint(x, y) {
-            const point = map1.latLngToLayerPoint(new LatLng(y, x));
-            this.stream.point(point.x, point.y);
+            Math.floor(Math.random() * length)
         }
 
-        const transform = geoTransform({ point: projectPoint });
-        const path = geoPath().projection(transform);
-        const feature = g
-            .selectAll("path")
-            .data(rawJson.features)
+
+
+        const feature = pathGroups
+            .selectAll("line")
+            .data((datum, index) => {return [[datum, countries.features[Math.floor(Math.random() * countries.features.length)], countries.features[Math.floor(Math.random() * countries.features.length)]]]})
             .enter()
-            .append("path");
+            .append("line")
+            .attr("stroke-width", 1)
+            .attr("stroke", "black");
+/*
+        const areaPaths = pathGroups.append("path")
+            .attr('fill-opacity', 0.3)
+            .attr('stroke', 'black')
+            .attr("z-index", 3000)
+            .attr('stroke-width', 2.5)
+            .attr("d", (d,i) => console.log(d, i ))
+*/
 
-        map1.on("zoomend", reset);
-        reset();
-
-        function reset() {
-            //console.log("Reset called")
-            const bounds = path.bounds(rawJson);
-            const topLeft = bounds[0];
-            const bottomRight = bounds[1];
-
-            d3Svg
-                .attr("width", bottomRight[0] - topLeft[0])
-                .attr("height", bottomRight[1] - topLeft[1])
-                .style("left", topLeft[0] + "px")
-                .style("top", topLeft[1] + "px");
-
-            g.attr(
-                "transform",
-                "translate(" + -topLeft[0] + "," + -topLeft[1] + ")"
-            );
-            feature.attr("d", path);
+        function mapGeometry(countries, zoom, center){
+            var radius = 20
+            var cords1 = map1._latLngToNewLayerPoint(countries[0].geometry.coordinates, zoom, center)
+            var cords2 = map1._latLngToNewLayerPoint(countries[1].geometry.coordinates, zoom, center)
+            var directionVector = {"x": (cords2.x - cords1.x), "y": (cords2.y - cords1.y)};
+            var lengthOfVector = Math.sqrt(directionVector.x**2 + directionVector.y**2)
+            directionVector.x = directionVector.x/lengthOfVector;
+            directionVector.y = directionVector.y/lengthOfVector;
+            var newCords1 = {"x": cords1.x + directionVector.x * radius, "y": cords1.y + directionVector.y * radius};
+            var newCords2 = {"x": cords2.x - directionVector.x * radius, "y": cords2.y - directionVector.y * radius};
+            return {"chords1": newCords1, "chords2" : newCords2}
         }
+
+        function update(e) {
+            //var chords = map1.latLngToLayerPoint()
+
+            //var coord = map1._latLngToNewLayerPoint(d.geometry.coordinates, e.zoom, e.center);
+            feature
+                .attr("x1", d => mapGeometry(d,e.zoom, e.center).chords1.x)
+                .attr("y1", d => mapGeometry(d,e.zoom, e.center).chords1.y)
+                .attr("x2", d => mapGeometry(d,e.zoom, e.center).chords2.x)
+                .attr("y2", d => mapGeometry(d,e.zoom, e.center).chords2.y);
+
+        }
+        map1.on("zoomanim", e => update(e));
+        update({"zoom":map1.getZoom(), "center": map1.getCenter()});
     }
 
     let map1;
 
     function onMount(container) {
         map1 = createMap(container);
-        const lineLayers = createLines();
-        lineLayers.addTo(map1);
-        createPaths((map1 = map1));
-
         createPoints(map1);
+        createLinesBetweenCountries(map1)
 
         return {
             destroy: () => {
@@ -210,5 +228,9 @@
     .map :global(.map-marker) {
         width: 30px;
         transform: translateX(-50%) translateY(-25%);
+    }
+    .leaflet-zoom-anim .svg-zoom-animated > g {
+        width: 2000px;
+        transition: transform 0.25s cubic-bezier(0,0,0.25,1);
     }
 </style>
