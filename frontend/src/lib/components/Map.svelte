@@ -13,7 +13,7 @@
 
     import { geoTransform, select, geoPath, arc, pie, scaleOrdinal } from "d3";
 
-    import countries from "$lib/geojson/countries.json"
+    import countries from "$lib/geojson/countries_small.json"
 
     const initialView = [20, 0];
 
@@ -42,61 +42,70 @@
         ).addTo(m);
         return m;
     }
-    function createPoints(map1) {
-        var data2 = [{
-                    "type": "Feature",
-                    "properties": {
-                        "name": "Andorra",
-                        "code": "ad",
-                        "un_classes": [
-                            { label: "B", value: 20 },
-                            { label: "C", value: 30 },
-                            { label: "D", value: 25 },
-                            { label: "A", value: 10 },
-                            { label: "E", value: 50 },
-                            { label: "F", value: 15 },
-                        ]
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            42.5486542501806,
-                            1.57676643468505
-                        ]
-                    }
-                }]
+
+    function createCountryDonuts(map1) {
+        const dummyData = [
+            {"country_code":"ad",
+                "un_classes": [
+                    { label: "UN1", value: 20 },
+                    { label: "UN2", value: 5 },
+                    { label: "UN3", value: 12 },
+                    { label: "UN4", value: 0 }
+                ]},
+            {"country_code":"fr",
+                "un_classes": [
+                    { label: "UN1", value: 20 },
+                    { label: "UN2", value: 30 },
+                    { label: "UN1", value: 20 },
+                    { label: "UN4", value: 30 }
+                ]},
+            {"country_code":"br",
+                "un_classes": [
+                    { label: "UN1", value: 20 },
+                    { label: "UN2", value: 16 },
+                    { label: "UN3", value: 20 },
+                    { label: "UN4", value: 70 },
+                    { label: "UN5", value: 12 },
+                    { label: "UN6", value: 4 }
+                ]},
+            {"country_code":"de",
+                "un_classes": [
+                    { label: "UN1", value: 120 },
+                    { label: "UN2", value: 4 },
+                    { label: "UN3", value: 20 },
+                    { label: "UN4", value: 70 },
+                    { label: "UN5", value: 12 },
+                    { label: "UN6", value: 4 }
+                ]}
+        ]
         //Adds a svg to the map which always contains all the things we add into it
         svg({clickable:true}).addTo(map1)
         var d3Svg = select(map1.getPanes().overlayPane).select("svg")
         d3Svg.append("g").attr("id", "donutGroup")
-        var donutGroups = d3Svg.select("#donutGroup").selectAll("g").data(countries.features).enter().append("g")
+        var donutGroups = d3Svg.select("#donutGroup").selectAll("g").data(dummyData).enter().append("g")
 
         var colorScale = scaleOrdinal()
             .range(["#7F3C8D","#11A579","#3969AC","#F2B701","#E73F74","#80BA5A","#E68310",
                     "#008695","#CF1C90","#f97b72","#4b4b8f","#A5AA99"]) // bold from carto.com
-
-        //arc generator
-
 
         // pie generator
         var pie1 = pie()
             .sort(null)
             .value(function(d) {return d.value});
 
-
         //slices
         var slice1 = donutGroups.selectAll("path")
             //.data(d => pie1(d.properties.un_classes))
-            .data(pie1(data2[0].properties.un_classes))
+            .data(d => pie1(d.un_classes))
             .enter()
             .append("path")
-            .attr("fill", function(d) { return colorScale(d.data.label); });
-
+            .attr("fill", function(d) {return colorScale(d.data.label); });
 
         function update(e) {
             var radius = 20;
                 ///0.5 * Math.pow(2,e.zoom);
 
+            //arc generator
             var arc1 = arc()
                 .innerRadius(radius*0.5)
                 .outerRadius(radius);
@@ -104,8 +113,8 @@
             donutGroups.selectAll("path")
                 .attr("d", arc1)
 
-            donutGroups.attr("style", function (d) {
-                var coord = map1._latLngToNewLayerPoint(d.geometry.coordinates, e.zoom, e.center);
+            donutGroups.attr("style", function (d){
+                var coord = map1._latLngToNewLayerPoint(countries[d.country_code].coordinates, e.zoom, e.center);
                 return 'transform: translate('+coord.x+'px,'+coord.y+'px)';
             })
             /*
@@ -128,26 +137,58 @@
         update({"zoom":map1.getZoom(), "center": map1.getCenter()});
     }
     function createLinesBetweenCountries(map1){
+        var dummyData = [
+            {
+                "origin_code": "ad",
+                "dest_code": "de",
+                "un_classes": [
+                    { label: "UN1", value: 10 },
+                    { label: "UN2", value: 22 },
+                    { label: "UN3", value: 30 },
+                    { label: "UN4", value: 0},
+                    { label: "UN5", value: 50 },
+                    { label: "UN6", value: 0},
+                ]
+            },
+            {
+                "origin_code": "fr",
+                "dest_code": "de",
+                "un_classes": [
+                    { label: "UN1", value: 10 },
+                    { label: "UN2", value: 20 },
+                    { label: "UN3", value: 3 },
+                    { label: "UN4", value: 25 },
+                    { label: "UN5", value: 0},
+                    { label: "UN5", value: 50 },
+                ]
+            },
+            {
+                "origin_code": "br",
+                "dest_code": "fr",
+                "un_classes": [
+                    { label: "UN1", value: 10 },
+                    { label: "UN2", value: 0},
+                    { label: "UN3", value: 30 },
+                    { label: "UN4", value: 0},
+                    { label: "UN5", value: 12},
+                    { label: "UN6", value: 50 },
+                ]
+            },
+        ]
+
         var d3Svg = select(map1.getPanes().overlayPane).select("svg")
-        d3Svg.append("g").attr("id", "pathGroup")
-        var pathGroups = d3Svg.select("#pathGroup").selectAll("g").data(countries.features).enter().append("g")
-
-        function selectRandomNotGiven(length, index){
-
-            Math.floor(Math.random() * length)
-        }
+        d3Svg.append("g").attr("id", "linkGroup")
 
 
-
-        const feature = pathGroups
+        const feature = d3Svg.select("#linkGroup")
             .selectAll("line")
-            .data((datum, index) => {return [[datum, countries.features[Math.floor(Math.random() * countries.features.length)], countries.features[Math.floor(Math.random() * countries.features.length)]]]})
+            .data(dummyData)
             .enter()
             .append("line")
             .attr("stroke-width", 1)
             .attr("stroke", "black");
 /*
-        const areaPaths = pathGroups.append("path")
+        const areaPaths = linkGroups.append("path")
             .attr('fill-opacity', 0.3)
             .attr('stroke', 'black')
             .attr("z-index", 3000)
@@ -155,28 +196,30 @@
             .attr("d", (d,i) => console.log(d, i ))
 */
 
-        function mapGeometry(countries, zoom, center){
+        function mapGeometry(link, zoom, center){
             var radius = 20
-            var cords1 = map1._latLngToNewLayerPoint(countries[0].geometry.coordinates, zoom, center)
-            var cords2 = map1._latLngToNewLayerPoint(countries[1].geometry.coordinates, zoom, center)
-            var directionVector = {"x": (cords2.x - cords1.x), "y": (cords2.y - cords1.y)};
+            var coords1 = map1._latLngToNewLayerPoint(countries[link.origin_code].coordinates, zoom, center)
+            var coords2 = map1._latLngToNewLayerPoint(countries[link.dest_code].coordinates, zoom, center)
+            var directionVector = {"x": (coords2.x - coords1.x), "y": (coords2.y - coords1.y)};
             var lengthOfVector = Math.sqrt(directionVector.x**2 + directionVector.y**2)
             directionVector.x = directionVector.x/lengthOfVector;
             directionVector.y = directionVector.y/lengthOfVector;
-            var newCords1 = {"x": cords1.x + directionVector.x * radius, "y": cords1.y + directionVector.y * radius};
-            var newCords2 = {"x": cords2.x - directionVector.x * radius, "y": cords2.y - directionVector.y * radius};
-            return {"chords1": newCords1, "chords2" : newCords2}
+            var newCoords1 = {"x": coords1.x + directionVector.x * radius, "y": coords1.y + directionVector.y * radius};
+            // var newCoords2 = {"x": coords2.x - directionVector.x * radius, "y": coords2.y - directionVector.y * radius};
+            var newCoords2 = {"x": coords1.x + (coords2.x-coords1.x)/2 , "y": coords1.y + (coords2.y-coords1.y)/2};
+            //if(isNaN(newCoords1.x) || isNaN(newCoords2.x) || isNaN(newCoords1.y) || isNaN(newCoords2.y)) console.log(countries, coords1, coords2, directionVector, lengthOfVector, newCoords1, newCoords2)
+            return {"coords1": newCoords1, "coords2" : newCoords2}
         }
 
         function update(e) {
-            //var chords = map1.latLngToLayerPoint()
+            //var coords = map1.latLngToLayerPoint()
 
             //var coord = map1._latLngToNewLayerPoint(d.geometry.coordinates, e.zoom, e.center);
             feature
-                .attr("x1", d => mapGeometry(d,e.zoom, e.center).chords1.x)
-                .attr("y1", d => mapGeometry(d,e.zoom, e.center).chords1.y)
-                .attr("x2", d => mapGeometry(d,e.zoom, e.center).chords2.x)
-                .attr("y2", d => mapGeometry(d,e.zoom, e.center).chords2.y);
+                .attr("x1", d => mapGeometry(d,e.zoom, e.center).coords1.x)
+                .attr("y1", d => mapGeometry(d,e.zoom, e.center).coords1.y)
+                .attr("x2", d => mapGeometry(d,e.zoom, e.center).coords2.x)
+                .attr("y2", d => mapGeometry(d,e.zoom, e.center).coords2.y);
 
         }
         map1.on("zoomanim", e => update(e));
@@ -187,7 +230,7 @@
 
     function onMount(container) {
         map1 = createMap(container);
-        createPoints(map1);
+        createCountryDonuts(map1);
         createLinesBetweenCountries(map1)
 
         return {
