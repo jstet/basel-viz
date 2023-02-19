@@ -11,7 +11,7 @@
         await goto(`?${url}`, {invalidateAll: true});
     }
 </script>
-
+<!-- SUBMIT BUTTON-->
 <div class="p-3 ">
     <div class="mb-5">
         <h1 class="font-bold text-2xl">Basel Viz</h1>
