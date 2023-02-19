@@ -1,91 +1,118 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from models import Export, Coord
+from models import Export
 
 
 def to_lst(res):
     lst = []
     for row in res:
-        dct = dict(row)
+        dct = dict(row["json_build_object"])
         lst.append(dct)
     return lst
 
 
-def to_line(res, db):
-    dct = {}
-    dct["type"] = "FeatureCollection"
-    lst = []
-    for i in res:
-        print(i)
-        feature = {}
-        feature["type"] = "Feature"
-        feature["properties"] = dict(i)
-        feature["properties"].pop("origin_lat")
-        feature["properties"].pop("origin_lon")
-        feature["properties"].pop("destination_lat")
-        feature["properties"].pop("destination_lon")
-        feature["geometry"] = {"type": "LineString",
-                               "coordinates": [[i["origin_lat"], i["origin_lon"]],[i["destination_lat"],i["destination_lon"]]]}
-        lst.append(feature)
-    dct["features"] = lst
-    return dct
-
-
-def query_get_all(db: Session):
-    res = db.query(Export).all()
-    lst = to_lst(res)
-    return lst
-
-
-def query_country(db: Session, c):
+def query_flows(db: Session, c):
     query = f"""
-with temp_table1 as (
-select
-	*
-from
-	exports
-inner join coords on
-	exports.origin = coords.country),
-temp_table2 as (
-select
-	*
-from
-	exports
-inner join coords on
-	exports.destination = coords.country)
-select
-	temp_table1.id,
-	temp_table1.origin,
-	temp_table1.destination,
-	temp_table1."year",
-	temp_table1.amount,
-	temp_table1.un1,
-	temp_table1.un3,
-	temp_table1.un4_1,
-	temp_table1.un4_2,
-	temp_table1.un4_3,
-	temp_table1.un5_1,
-	temp_table1.un5_2,
-	temp_table1.un6_1,
-	temp_table1.un6_2,
-	temp_table1.un8,
-	temp_table1.un9,
-	temp_table1.lat as origin_lat,
-	temp_table1.lon as origin_lon,
-	temp_table2.lat as destination_lat,
-	temp_table2.lon as destination_lon
-from
-	temp_table2
-inner join temp_table1 on
-	temp_table2.id = temp_table1.id
-where temp_table1.origin = '{c}';
-"""
+    with t as (
+    select
+        origin,
+        destination,
+        SUM(un1) as un1,
+        SUM(un3) as un3,
+        SUM(un4_1) as un4_1,
+        SUM(un4_2) as un4_2,
+        SUM(un4_3) as un4_3,
+        SUM(un5_1) as un5_1,
+        SUM(un5_2) as un5_2,
+        SUM(un6_1) as un6_1,
+        SUM(un6_2) as un6_2,
+        SUM(un8) as un8,
+        SUM(un9) as un9,
+        SUM(unspecified) as unspecified,
+        SUM(multiple) as multiple 
+    from
+        exports
+    group by
+        origin,
+        destination
+        )
 
-    flows = db.execute(text(query))
+    select
+        json_build_object(
+            'origin_code', t.origin,
+            'destination_code', t.destination,
+            'un_classes', json_build_array(
+            json_build_array('label', 'UN_1', 'value', t.un1),
+            json_build_array('label', 'UN_3', 'value', t.un3),
+            json_build_array('label', 'UN_4_1', 'value', t.un1),
+            json_build_array('label', 'UN_4_2', 'value', t.un1),
+            json_build_array('label', 'UN_4_3', 'value', t.un1),
+            json_build_array('label', 'UN_5_1', 'value', t.un1),
+            json_build_array('label', 'UN_6_1', 'value', t.un1),
+            json_build_array('label', 'UN_6_2', 'value', t.un1),
+            json_build_array('label', 'UN_8', 'value', t.un1),
+            json_build_array('label', 'UN_9', 'value', t.un1),
+            json_build_array('label', 'unspecified', 'value', t.unspecified),
+            json_build_array('label', 'multiple', 'value', t.multiple)
+            
+        )
+        )
+    from
+        t
+    where
+        origin = '{c}';
+    """
 
-    # flows = db.query(Export, Coord).filter(Export.origin == c).join(
-    #     Export, Export.origin == Coord.country).all()
-    flows = to_line(to_lst(flows), db)
-
+    flows = to_lst(db.execute(text(query)))
     return flows
 
+def query_points(db: Session, c):
+    query = f"""
+    with t as (
+    select
+        origin,
+        SUM(un1) as un1,
+        SUM(un3) as un3,
+        SUM(un4_1) as un4_1,
+        SUM(un4_2) as un4_2,
+        SUM(un4_3) as un4_3,
+        SUM(un5_1) as un5_1,
+        SUM(un5_2) as un5_2,
+        SUM(un6_1) as un6_1,
+        SUM(un6_2) as un6_2,
+        SUM(un8) as un8,
+        SUM(un9) as un9,
+        SUM(unspecified) as unspecified,
+        SUM(multiple) as multiple 
+    from
+        exports
+    group by
+        origin
+        )
+
+    select
+        json_build_object(
+            'origin_code', t.origin,
+            'un_classes', json_build_array(
+            json_build_array('label', 'UN_1', 'value', t.un1),
+            json_build_array('label', 'UN_3', 'value', t.un3),
+            json_build_array('label', 'UN_4_1', 'value', t.un1),
+            json_build_array('label', 'UN_4_2', 'value', t.un1),
+            json_build_array('label', 'UN_4_3', 'value', t.un1),
+            json_build_array('label', 'UN_5_1', 'value', t.un1),
+            json_build_array('label', 'UN_6_1', 'value', t.un1),
+            json_build_array('label', 'UN_6_2', 'value', t.un1),
+            json_build_array('label', 'UN_8', 'value', t.un1),
+            json_build_array('label', 'UN_9', 'value', t.un1),
+            json_build_array('label', 'unspecified', 'value', t.unspecified),
+            json_build_array('label', 'multiple', 'value', t.multiple)
+            
+        )
+        )
+    from
+        t
+    where
+        origin = '{c}';
+    """
+    flows = to_lst(db.execute(text(query)))
+    return flows

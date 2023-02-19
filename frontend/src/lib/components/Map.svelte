@@ -11,6 +11,8 @@
         svg
     } from "leaflet";
 
+    export let data;
+
     import { geoTransform, select, geoPath, arc, pie, scaleOrdinal } from "d3";
 
     import countries from "$lib/geojson/countries_small.json"

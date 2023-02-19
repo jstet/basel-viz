@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Boolean, Column, Float, Integer, String
+from sqlalchemy import Column, Float, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -21,15 +21,16 @@ class Export(Base):
     origin = Column(String(2))
     destination = Column(String(2))
     year = Column(Integer)
-    amount = Column(Float(53))
-    un1 = Column(Boolean)
-    un3 = Column(Boolean)
-    un4_1 = Column(Boolean)
-    un4_2 = Column(Boolean)
-    un4_3 = Column(Boolean)
-    un5_1 = Column(Boolean)
-    un5_2 = Column(Boolean)
-    un6_1 = Column(Boolean)
-    un6_2 = Column(Boolean)
-    un8 = Column(Boolean)
-    un9 = Column(Boolean)
+    un1 = Column(Float(53))
+    un3 = Column(Float(53))
+    un4_1 = Column(Float(53))
+    un4_2 = Column(Float(53))
+    un4_3 = Column(Float(53))
+    un5_1 = Column(Float(53))
+    un5_2 = Column(Float(53))
+    un6_1 = Column(Float(53))
+    un6_2 = Column(Float(53))
+    un8 = Column(Float(53))
+    un9 = Column(Float(53))
+    unspecified = Column(Float(53))
+    multiple = Column(Float(53))
