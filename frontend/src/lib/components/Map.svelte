@@ -11,7 +11,11 @@
         svg
     } from "leaflet";
 
-    export let data;
+    export let flows;
+    export let points;
+
+    $: console.log(points)
+    $: console.log(flows)
 
     import { geoTransform, select, geoPath, arc, pie, scaleOrdinal } from "d3";
 
