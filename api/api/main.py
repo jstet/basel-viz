@@ -33,13 +33,13 @@ def get_db():
 # ORJSON is faster than normal fastapi json 
     
 @app.get("/flows", response_class=ORJSONResponse)
-def get_flows(c: Union[str, None] = Query(default=None, max_length=2), db: Session = Depends(get_db)):
-    results = query_flows(db, c)
+def get_flows(c: Union[str, None] = Query(default=None, max_length=2), y: List[int] = Query(None),  db: Session = Depends(get_db)):
+    results = query_flows(db, c, y)
     return ORJSONResponse(results)
 
 @app.get("/points",response_class=ORJSONResponse)
-def get_points(c: Union[str, None] = Query(default=None, max_length=2), db: Session = Depends(get_db)):
-    results = query_points(db, c)
+def get_points(c: Union[str, None] = Query(default=None, max_length=2), y: List[int] = Query(None), db: Session = Depends(get_db)):
+    results = query_points(db, c, y)
     return ORJSONResponse(results)
 
 

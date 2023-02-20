@@ -8,7 +8,11 @@ API_URL=http://localhost:8000
 ```
 docker compose -f api.yml  up 
 ```
-3. Then, run the sveltekit project with:
+3. Install packages;
+```
+npm install
+```
+4. Then, run the sveltekit project with:
 ```
 npm run dev
 ```

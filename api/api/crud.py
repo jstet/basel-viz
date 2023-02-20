@@ -21,8 +21,18 @@ def handle_c(c):
         """
     return where
 
+def handle_y(y):
+    if y is None:
+        where = ""
+    else:
+        where = f"""
+         where
+            year between {y[0]} and {y[1]}
+        """
+    return where
 
-def query_flows(db: Session, c):
+
+def query_flows(db: Session, c, y):
     query = f"""
     with t as (
     select
@@ -43,6 +53,7 @@ def query_flows(db: Session, c):
         SUM(multiple) as multiple 
     from
         exports
+    {handle_y(y)}
     group by
         origin,
         destination
@@ -55,14 +66,14 @@ def query_flows(db: Session, c):
             'un_classes', json_build_array(
             json_build_object('label', 'UN_1', 'value', t.un1),
             json_build_object('label', 'UN_3', 'value', t.un3),
-            json_build_object('label', 'UN_4_1', 'value', t.un1),
-            json_build_object('label', 'UN_4_2', 'value', t.un1),
-            json_build_object('label', 'UN_4_3', 'value', t.un1),
-            json_build_object('label', 'UN_5_1', 'value', t.un1),
-            json_build_object('label', 'UN_6_1', 'value', t.un1),
-            json_build_object('label', 'UN_6_2', 'value', t.un1),
-            json_build_object('label', 'UN_8', 'value', t.un1),
-            json_build_object('label', 'UN_9', 'value', t.un1),
+            json_build_object('label', 'UN_4_1', 'value', t.un4_1),
+            json_build_object('label', 'UN_4_2', 'value', t.un4_2),
+            json_build_object('label', 'UN_4_3', 'value', t.un4_3),
+            json_build_object('label', 'UN_5_1', 'value', t.un5_1),
+            json_build_object('label', 'UN_6_1', 'value', t.un6_1),
+            json_build_object('label', 'UN_6_2', 'value', t.un6_2),
+            json_build_object('label', 'UN_8', 'value', t.un8),
+            json_build_object('label', 'UN_9', 'value', t.un9),
             json_build_object('label', 'unspecified', 'value', t.unspecified),
             json_build_object('label', 'multiple', 'value', t.multiple)
             
@@ -77,7 +88,7 @@ def query_flows(db: Session, c):
     return flows
 
 
-def query_points(db: Session, c):
+def query_points(db: Session, c, y):
     query = f"""
     with t as (
     select
@@ -97,6 +108,7 @@ def query_points(db: Session, c):
         SUM(multiple) as multiple 
     from
         exports
+    {handle_y(y)}
     group by
         origin
         )
@@ -107,14 +119,14 @@ def query_points(db: Session, c):
             'un_classes', json_build_array(
             json_build_object('label', 'UN_1', 'value', t.un1),
             json_build_object('label', 'UN_3', 'value', t.un3),
-            json_build_object('label', 'UN_4_1', 'value', t.un1),
-            json_build_object('label', 'UN_4_2', 'value', t.un1),
-            json_build_object('label', 'UN_4_3', 'value', t.un1),
-            json_build_object('label', 'UN_5_1', 'value', t.un1),
-            json_build_object('label', 'UN_6_1', 'value', t.un1),
-            json_build_object('label', 'UN_6_2', 'value', t.un1),
-            json_build_object('label', 'UN_8', 'value', t.un1),
-            json_build_object('label', 'UN_9', 'value', t.un1),
+            json_build_object('label', 'UN_4_1', 'value', t.un4_1),
+            json_build_object('label', 'UN_4_2', 'value', t.un4_2),
+            json_build_object('label', 'UN_4_3', 'value', t.un4_3),
+            json_build_object('label', 'UN_5_1', 'value', t.un5_1),
+            json_build_object('label', 'UN_6_1', 'value', t.un6_1),
+            json_build_object('label', 'UN_6_2', 'value', t.un6_2),
+            json_build_object('label', 'UN_8', 'value', t.un8),
+            json_build_object('label', 'UN_9', 'value', t.un9),
             json_build_object('label', 'unspecified', 'value', t.unspecified),
             json_build_object('label', 'multiple', 'value', t.multiple)
             
