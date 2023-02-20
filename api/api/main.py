@@ -2,6 +2,7 @@ import os
 import uvicorn
 import sys
 import sqlalchemy
+from typing import Union
 from fastapi import FastAPI, status, Depends, Query
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +13,7 @@ from models import *
 from schemas import *
 
 
-app = FastAPI(title="")
+app = FastAPI(title="basel_viz")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,15 +33,13 @@ def get_db():
 # ORJSON is faster than normal fastapi json 
     
 @app.get("/flows", response_class=ORJSONResponse)
-def get_all(c: str = Query(max_length=2), db: Session = Depends(get_db)):
-    if c:
-        results = query_flows(db, c)
+def get_flows(c: Union[str, None] = Query(default=None, max_length=2), db: Session = Depends(get_db)):
+    results = query_flows(db, c)
     return ORJSONResponse(results)
 
 @app.get("/points",response_class=ORJSONResponse)
-def get_all(c: str = Query(max_length=2), db: Session = Depends(get_db)):
-    if c:
-        results = query_points(db, c)
+def get_points(c: Union[str, None] = Query(default=None, max_length=2), db: Session = Depends(get_db)):
+    results = query_points(db, c)
     return ORJSONResponse(results)
 
 

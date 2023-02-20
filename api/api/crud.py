@@ -11,6 +11,17 @@ def to_lst(res):
     return lst
 
 
+def handle_c(c):
+    if c is None:
+        where = ""
+    else:
+        where = f"""
+         where
+        origin = '{c}';
+        """
+    return where
+
+
 def query_flows(db: Session, c):
     query = f"""
     with t as (
@@ -42,29 +53,29 @@ def query_flows(db: Session, c):
             'origin_code', t.origin,
             'destination_code', t.destination,
             'un_classes', json_build_array(
-            json_build_array('label', 'UN_1', 'value', t.un1),
-            json_build_array('label', 'UN_3', 'value', t.un3),
-            json_build_array('label', 'UN_4_1', 'value', t.un1),
-            json_build_array('label', 'UN_4_2', 'value', t.un1),
-            json_build_array('label', 'UN_4_3', 'value', t.un1),
-            json_build_array('label', 'UN_5_1', 'value', t.un1),
-            json_build_array('label', 'UN_6_1', 'value', t.un1),
-            json_build_array('label', 'UN_6_2', 'value', t.un1),
-            json_build_array('label', 'UN_8', 'value', t.un1),
-            json_build_array('label', 'UN_9', 'value', t.un1),
-            json_build_array('label', 'unspecified', 'value', t.unspecified),
-            json_build_array('label', 'multiple', 'value', t.multiple)
+            json_build_object('label', 'UN_1', 'value', t.un1),
+            json_build_object('label', 'UN_3', 'value', t.un3),
+            json_build_object('label', 'UN_4_1', 'value', t.un1),
+            json_build_object('label', 'UN_4_2', 'value', t.un1),
+            json_build_object('label', 'UN_4_3', 'value', t.un1),
+            json_build_object('label', 'UN_5_1', 'value', t.un1),
+            json_build_object('label', 'UN_6_1', 'value', t.un1),
+            json_build_object('label', 'UN_6_2', 'value', t.un1),
+            json_build_object('label', 'UN_8', 'value', t.un1),
+            json_build_object('label', 'UN_9', 'value', t.un1),
+            json_build_object('label', 'unspecified', 'value', t.unspecified),
+            json_build_object('label', 'multiple', 'value', t.multiple)
             
         )
         )
     from
         t
-    where
-        origin = '{c}';
+    {handle_c(c)};
     """
 
     flows = to_lst(db.execute(text(query)))
     return flows
+
 
 def query_points(db: Session, c):
     query = f"""
@@ -94,25 +105,24 @@ def query_points(db: Session, c):
         json_build_object(
             'origin_code', t.origin,
             'un_classes', json_build_array(
-            json_build_array('label', 'UN_1', 'value', t.un1),
-            json_build_array('label', 'UN_3', 'value', t.un3),
-            json_build_array('label', 'UN_4_1', 'value', t.un1),
-            json_build_array('label', 'UN_4_2', 'value', t.un1),
-            json_build_array('label', 'UN_4_3', 'value', t.un1),
-            json_build_array('label', 'UN_5_1', 'value', t.un1),
-            json_build_array('label', 'UN_6_1', 'value', t.un1),
-            json_build_array('label', 'UN_6_2', 'value', t.un1),
-            json_build_array('label', 'UN_8', 'value', t.un1),
-            json_build_array('label', 'UN_9', 'value', t.un1),
-            json_build_array('label', 'unspecified', 'value', t.unspecified),
-            json_build_array('label', 'multiple', 'value', t.multiple)
+            json_build_object('label', 'UN_1', 'value', t.un1),
+            json_build_object('label', 'UN_3', 'value', t.un3),
+            json_build_object('label', 'UN_4_1', 'value', t.un1),
+            json_build_object('label', 'UN_4_2', 'value', t.un1),
+            json_build_object('label', 'UN_4_3', 'value', t.un1),
+            json_build_object('label', 'UN_5_1', 'value', t.un1),
+            json_build_object('label', 'UN_6_1', 'value', t.un1),
+            json_build_object('label', 'UN_6_2', 'value', t.un1),
+            json_build_object('label', 'UN_8', 'value', t.un1),
+            json_build_object('label', 'UN_9', 'value', t.un1),
+            json_build_object('label', 'unspecified', 'value', t.unspecified),
+            json_build_object('label', 'multiple', 'value', t.multiple)
             
         )
         )
     from
         t
-    where
-        origin = '{c}';
+    {handle_c(c)};
     """
     flows = to_lst(db.execute(text(query)))
     return flows
