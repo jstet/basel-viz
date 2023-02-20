@@ -8,22 +8,22 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"<<-EO
     origin VARCHAR(2),
     destination VARCHAR(2),
     year INT,  
-    amount FLOAT,
-    UN1 BOOLEAN,
-    UN3 BOOLEAN,
-    UN4_1 BOOLEAN,
-    UN4_2 BOOLEAN,
-    UN4_3 BOOLEAN,
-    UN5_1 BOOLEAN,
-    UN5_2 BOOLEAN,
-    UN6_1 BOOLEAN,
-    UN6_2 BOOLEAN,
-
-    UN8 BOOLEAN,
-    UN9 BOOLEAN
+    UN1 FLOAT,
+    UN3 FLOAT,
+    UN4_1 FLOAT,
+    UN4_2 FLOAT,
+    UN4_3 FLOAT,
+    UN5_1 FLOAT,
+    UN5_2 FLOAT,
+    UN6_1 FLOAT,
+    UN6_2 FLOAT,
+    UN8 FLOAT,
+    UN9 FLOAT,
+    unspecified FLOAT,
+    multiple FLOAT
     );
   
-COPY exports(id, origin, destination, year, UN1,UN3,UN4_1,UN4_2,UN4_3,UN5_1,UN5_2,UN6_1,UN6_2,UN8,UN9,amount)
+COPY exports(id, origin, destination, year, UN1,UN3,UN4_1,UN4_2,UN4_3,UN5_1,UN5_2,UN6_1,UN6_2,UN8,UN9,unspecified,multiple)
 FROM '/data/flows.csv'
 CSV HEADER DELIMITER ',';
 
