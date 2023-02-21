@@ -36,7 +36,5 @@ export async function load({ url }) {
     const points_response = await fetch(points_url)
     const points = points_response.json()
 
-    console.log(points_url)
-
     return { flows: flows, points: points }
 }

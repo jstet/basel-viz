@@ -8,6 +8,7 @@
         polyline,
         tileLayer,
         LatLng,
+        GeoJSON,
         svg
     } from "leaflet";
     import { palette } from "$lib/data/palette";
@@ -21,7 +22,7 @@
     let filterdFlows = []
     let maxFlowAmount
 
-    $: console.log(points)
+
     $: {
         console.log(flows)
         filterdFlows = flows.filter(d => d.origin_code !== d.destination_code);
@@ -40,7 +41,7 @@
         .range(palette.colors) // bold from carto.com
 
     function createMap(container) {
-        // Setting initial position and zoom of map and restricting zoom posibilites
+        // Setting initial position and zoom of map and restricting zoom 
         let m = map(container, {
             preferCanvas: false,
             maxZoom: 8,
@@ -62,6 +63,7 @@
                 maxZoom: 20,
             }
         ).addTo(m);
+        "https://api.maptiler.com/tiles/countries/tiles.json?key=luJzoso9GKWOu4YeGmeD"
         return m;
     }
 
@@ -102,7 +104,7 @@
             donutGroups.attr("style", function (d) {
                 var coord = map1._latLngToNewLayerPoint(countries[d.origin_code].coordinates, e.zoom, e.center);
                 return 'transform: translate(' + coord.x + 'px,' + coord.y + 'px)';
-            })
+            }).attr("class", "leaflet-zoom-hide")
         }
 
         map1.on("zoomanim", e => update(e));
@@ -112,7 +114,7 @@
 
     function createLinesBetweenCountries(map1) {
         var d3Svg = select(map1.getPanes().overlayPane).select("svg")
-        d3Svg.append("g").attr("id", "linkGroup")
+        d3Svg.append("g").attr("id", "linkGroup").attr("class", "leaflet-zoom-hide")    
 
         const feature = d3Svg.select("#linkGroup")
             .selectAll("line")
