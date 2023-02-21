@@ -6,6 +6,7 @@
     $: flows = data.flows
     let points;
     $: points = data.points
+   
 </script>
 
 <div class="flex w-screen h-screen">
