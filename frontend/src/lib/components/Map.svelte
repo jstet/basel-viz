@@ -10,6 +10,7 @@
         LatLng,
         svg
     } from "leaflet";
+    import { palette } from "$lib/data/palette";
     import {geoTransform, select, geoPath, arc, pie, scaleOrdinal} from "d3";
 
     import countries from "$lib/geojson/countries_small.json"
@@ -35,15 +36,8 @@
     const initialView = [20, 0];
 
     var UnClassesColorScale = scaleOrdinal()
-        .domain(["UN1", "UN2", "UN3", "UN4_1",
-            "UN4_2", "UN4_3", "UN5_1", "UN6_1",
-            "UN6_2", "UN8", "UN9",
-            "unspecified", "multiple"])
-        .range([
-            "#be4b1c", "#11A579", "#3969AC",  "#4B4B8FFF",
-            "#7F3C8D", "#E73F74", "#80BA5A", "#E68310",
-            "#008695", "#CF1C90", "#f97b72",
-            "#0b6772", "#F2B701"]) // bold from carto.com
+        .domain(palette.labels)
+        .range(palette.colors) // bold from carto.com
 
     function createMap(container) {
         // Setting initial position and zoom of map and restricting zoom posibilites
