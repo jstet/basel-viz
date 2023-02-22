@@ -14,7 +14,7 @@
     import { palette } from "$lib/data/palette";
     import { geoTransform, select, geoPath, arc, pie, scaleOrdinal } from "d3";
 
-    import countries from "$lib/geojson/countries_small.json";
+    import countries from "$lib/geojson/countries.json";
 
     export let flows;
     export let points;
@@ -41,14 +41,10 @@
             prev.total > current.total ? prev : current
         );
         if (map1) {
-        console.log("hu")
-        createLinesBetweenCountries(map1);
-        createCountryDonuts(map1);
+            createLinesBetweenCountries(map1);
+            createCountryDonuts(map1);
+        }
     }
-        console.log(filterdFlows);
-    }
-
-    $: console.log(points);
 
     const initialView = [20, 0];
 
@@ -61,7 +57,7 @@
         let m = map(container, {
             preferCanvas: false,
             maxZoom: 8,
-            minZoom: 2,
+            minZoom: 3,
             maxBounds: [
                 //south west
                 [-90, -200],
@@ -87,7 +83,7 @@
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
         // if stuff already there, delete first
         select("#donutGroup").remove();
-        
+
         d3Svg.append("g").attr("id", "donutGroup");
         var donutGroups = d3Svg
             .select("#donutGroup")
@@ -148,8 +144,8 @@
 
     function createLinesBetweenCountries(map1) {
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
-         // if stuff already there, delete first
-         select("#linkGroup").remove();
+        // if stuff already there, delete first
+        select("#linkGroup").remove();
         d3Svg
             .append("g")
             .attr("id", "linkGroup")
@@ -248,11 +244,12 @@
         }
     }
 
-    $:{ if (map1) {
-        console.log("hu")
-        createLinesBetweenCountries(map1);
-        createCountryDonuts(map1);
-    }}
+    $: {
+        if (map1) {
+            createLinesBetweenCountries(map1);
+            createCountryDonuts(map1);
+        }
+    }
 </script>
 
 <svelte:window on:resize={resizeMap} />

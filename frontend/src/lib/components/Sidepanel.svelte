@@ -4,6 +4,8 @@
     import Slider from "@bulatdashiev/svelte-slider";
     import { palette } from "$lib/data/palette";
     import Modal from "$lib/components/Modal.svelte";
+    import countries from "$lib/geojson/countries.json";
+    import { count } from "d3";
     let selected;
     let value = [2001, 2021];
     let range;
@@ -17,6 +19,8 @@
         url.set("year", value);
         await goto(`?${url}`, { invalidateAll: true });
     }
+
+    $: console.log(Object.entries(countries));
 </script>
 
 <!-- SUBMIT BUTTON-->
@@ -47,8 +51,9 @@
                 bind:value={selected}
             >
                 <option selected value="all">All</option>
-                <option value="de">Germany</option>
-                <option value="fr">France</option>
+                {#each Object.entries(countries) as country}
+                    <option value={country[0]}>{country[1].name}</option>
+                {/each}
             </select>
         </div>
         <div class="pb-3">
@@ -82,11 +87,14 @@
     </div>
     <div class="border-b">
         <h1 class="font-bold text-lg pb-4">Legend</h1>
-        {#each palette.labels as label,i}
-        <div class="flex space-x-4">
-        <div class="h-10 w-10 mb-3" style="background-color: {palette.colors[i]};"></div>
-        <span>{label}</span>
-    </div>
+        {#each palette.labels as label, i}
+            <div class="flex space-x-4">
+                <div
+                    class="h-10 w-10 mb-3"
+                    style="background-color: {palette.colors[i]};"
+                />
+                <span>{label}</span>
+            </div>
         {/each}
     </div>
     <p class="font-light absolute bottom-0 pb-3">
@@ -98,15 +106,11 @@
     <h2 class="font-bold text-3xl pb-4">Basel Viz</h2>
 
     <h3 class="pb-3">Article 13.3 of the Basel Convention states:</h3>
-    <blockquote
-        class="italic"
-    >
-        
+    <blockquote class="italic">
         <p class="pb-1">
-            "The Parties, [...] shall
-            transmit, [...] before the end of each calendar year,
-            a report on the previous calendar year, containing the following
-            information:
+            "The Parties, [...] shall transmit, [...] before the end of each
+            calendar year, a report on the previous calendar year, containing
+            the following information:
         </p>
 
         <p class="pb-1 pl-4">
@@ -118,6 +122,8 @@
             category, characteristics, origin, and disposal methods;"
         </p>
     </blockquote>
-    <p class="pb-10">The data contained in these reports is publically available and was scraped and aggregated for this visualization.</p>
-    
+    <p class="pb-10">
+        The data contained in these reports is publically available and was
+        scraped and aggregated for this visualization.
+    </p>
 </Modal>
