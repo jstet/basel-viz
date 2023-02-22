@@ -6,6 +6,17 @@
     import Modal from "$lib/components/Modal.svelte";
     import countries from "$lib/geojson/countries.json";
     import { count } from "d3";
+    import UN_class_1 from "$lib/svg/UN_class_1.svelte";
+    import UN_class_3 from "$lib/svg/UN_class_3.svelte";
+    import UN_class_4_1 from "$lib/svg/UN_class_4_1.svelte";
+    import UN_class_4_2 from "$lib/svg/UN_class_4_2.svelte";
+    import UN_class_4_3 from "$lib/svg/UN_class_4_3.svelte";
+    import UN_class_5_1 from "$lib/svg/UN_class_5_1.svelte";
+    import UN_class_5_2 from "$lib/svg/UN_class_5_2.svelte";
+    import UN_class_6_1 from "$lib/svg/UN_class_6_1.svelte";
+    import UN_class_6_2 from "$lib/svg/UN_class_6_2.svelte";
+    import UN_class_8 from "$lib/svg/UN_class_8.svelte";
+    import UN_class_9 from "$lib/svg/UN_class_9.svelte";
     let selected;
     let value = [2001, 2021];
     let range;
@@ -20,7 +31,7 @@
         await goto(`?${url}`, { invalidateAll: true });
     }
 
-    $: console.log(Object.entries(countries));
+    const components = { UN_class_1, UN_class_3, UN_class_4_1, UN_class_4_2, UN_class_4_3, UN_class_5_1, UN_class_5_2, UN_class_6_1, UN_class_6_2, UN_class_8, UN_class_9 }
 </script>
 
 <!-- SUBMIT BUTTON-->
@@ -87,15 +98,36 @@
     </div>
     <div class="border-b">
         <h1 class="font-bold text-lg pb-4">Legend</h1>
-        {#each palette.labels as label, i}
-            <div class="flex space-x-4">
-                <div
-                    class="h-10 w-10 mb-3"
-                    style="background-color: {palette.colors[i]};"
-                />
-                <span>{label}</span>
-            </div>
-        {/each}
+        <div class="grid grid-cols-2 gap-5 mb-3">
+            {#each palette.description as description, i}
+                <div class="flex space-x-4 text-sm items-center">
+                    <div
+                        class="h-16 w-16"
+                        style="background-color: {palette.colors[i]};"
+                    >
+                        {#if palette.svgs[i] != ""}
+                            <svelte:component
+                                this={components[`UN_class_${palette.svgs[i]}`]}
+                                width={64}
+                                height={64}
+                            />
+                        {:else}{/if}
+                    </div>
+                    {#if palette.class_written[i] != ""}
+                        <span
+                            ><span class="font-bold"
+                                >{palette.class_written[i]}</span
+                            >
+                            : <br />
+                            {description}</span
+                        >
+                    {:else}
+                        <span>{description}</span>
+                    {/if}
+                    <div />
+                </div>
+            {/each}
+        </div>
     </div>
     <p class="font-light absolute bottom-0 pb-3">
         Created by Xenia Saar, Freya Moßig and Jonas Stettner

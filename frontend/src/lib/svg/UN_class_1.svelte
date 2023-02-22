@@ -2,7 +2,7 @@
     export let width;
     export let height;
 </script>
-<svg width={width} height={height}>
+<svg width={width} height={height} viewBox="0 0 100 100">
     <defs id="defs6">
         <clipPath id="clipPath20">
             <path d="m 0,0 5950,0 0,7197.12 -5950,0 L 0,0 z" id="path22" />
