@@ -6,8 +6,10 @@
 ## Starting API
 1. Start DB
 ```
+
 docker compose -f database.yml down --volumes
-docker compose -f database.yml  up --build --force-recreate
+docker compose -f database.yml build --no-cache 
+docker compose -f database.yml  up --force-recreate
 ```
 2. Start API (while in api/api folder)
 ```
