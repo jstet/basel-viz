@@ -31,7 +31,7 @@
         await goto(`?${url}`, { invalidateAll: true });
     }
 
-    const components = { UN_class_1, UN_class_3, UN_class_4_1, UN_class_4_2, UN_class_4_3, UN_class_5_1, UN_class_5_2, UN_class_6_1, UN_class_6_2, UN_class_8, UN_class_9 }
+    const components = {UN_class_1, UN_class_3, UN_class_4_1, UN_class_4_2, UN_class_4_3, UN_class_5_1, UN_class_5_2, UN_class_6_1, UN_class_6_2, UN_class_8, UN_class_9 }
 </script>
 
 <!-- SUBMIT BUTTON-->

@@ -30,10 +30,12 @@ CSV HEADER DELIMITER ',';
  CREATE TABLE coords(
     country VARCHAR(2) PRIMARY KEY,
     lat FLOAT,
-    lon FLOAT
+    lon FLOAT,
+    name VARCHAR(50),
+    population INT
     );
   
-COPY coords(country, lat, lon)
+COPY coords(country, lat, lon, name, population)
 FROM '/data/coords.csv'
 CSV HEADER DELIMITER ',';
   
