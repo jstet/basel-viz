@@ -158,4 +158,8 @@
         The data contained in these reports is publically available and was
         scraped and aggregated for this visualization.
     </p>
+    <p class="pb-10">
+        <a href="http://www.basel.int/" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Read more</a>
+    <p>
+   
 </Modal>
