@@ -1,7 +1,7 @@
 ## Setup
 1. First, create a .env file with follwing contents:
 ```
-API_URL=http://localhost:8000
+API_URL=http://localhost:3000
 ```
 2. Then, u gotta start the API and the DB. 
 

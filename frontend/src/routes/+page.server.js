@@ -33,8 +33,13 @@ export async function load({ url }) {
     const flows_response = await fetch(flows_url)
     const flows = flows_response.json()
 
+    
+
     const points_response = await fetch(points_url)
     const points = points_response.json()
+    const test = await flows
+    console.log(test.length)
+
 
     return { flows: flows, points: points }
 }

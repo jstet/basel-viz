@@ -23,6 +23,8 @@
     let maxFlowAmount;
     let mappedFlows;
 
+    
+
     $: {
         filterdFlows = flows.filter(
             (d) => d.origin_code !== d.destination_code
