@@ -4,8 +4,6 @@ import { API_URL } from '$env/static/private';
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ url }) {
 
-    
-
     let country = url.searchParams.get("country")
     let year = url.searchParams.get("year")
 
@@ -29,7 +27,7 @@ export async function load({ url }) {
 
     if (year) {
         let y = JSON.parse(`[${year}]`)
-        console.log(y)
+        //console.log(y)
         flows_url = flows_url + `y=${y[0]}&y=${y[1]}&`
         points_url = points_url + `y=${y[0]}&y=${y[1]}&`
     }
@@ -60,6 +58,7 @@ export async function load({ url }) {
 
     const countries_response = await fetch(countries_url)
     const countries = countries_response.json()
+
 
     
       

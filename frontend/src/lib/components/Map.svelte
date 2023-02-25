@@ -11,46 +11,51 @@
         GeoJSON,
         svg,
     } from "leaflet";
-    import { palette } from "$lib/data/palette";
-    import { geoTransform, select, geoPath, arc, pie, scaleOrdinal } from "d3";
+    import {palette} from "$lib/data/palette";
+    import {geoTransform, select, geoPath, arc, pie, scaleOrdinal, scaleLog} from "d3";
 
     import countries from "$lib/geojson/countries.json";
 
     export let flows;
     export let points;
 
-    let filterdFlows = [];
-    let maxFlowAmount;
-    let mappedFlows;
-
-    
+    let summedFlows
+    let lineWidthScale
 
     $: {
-        filterdFlows = flows.filter(
-            (d) => d.origin_code !== d.destination_code
-        );
-
-        mappedFlows = filterdFlows.map((d) => {
-            return {
-                total: d.un_classes.reduce(
-                    (partial, current) => partial + current.value,
-                    0
-                ),
-                original: d,
-            };
+        summedFlows = {}
+        Object.keys(flows).forEach(key => {
+            summedFlows[key] = flows[key].map((d) => {
+                return {
+                    total: d.un_classes.reduce(
+                        (partial, current) => partial + current.value,
+                        0
+                    ),
+                    original: d,
+                };
+            });
         });
-        maxFlowAmount = mappedFlows.reduce((prev, current) =>
-            prev.total > current.total ? prev : current
-        );
+
+        let maxFlowAmount = 0;
+        for (const flow of [...summedFlows.bidirectional, ...summedFlows.unidirectional]) {
+            if (flow.total > maxFlowAmount) {
+                maxFlowAmount = flow.total;
+            }
+        }
+        //console.log("maxFlowAmount: ", maxFlowAmount)
+        lineWidthScale = scaleLog()
+            .base(Math.E)
+            .domain([0.01, maxFlowAmount]) // min and max values the trash amount can take
+            .range([1, 8]); // min and max width of lines for the flows
         if (map1) {
-            createLinesBetweenCountries(map1);
+            createLinesBetweenCountries(map1)
             createCountryDonuts(map1);
         }
     }
 
     const initialView = [20, 0];
 
-    var UnClassesColorScale = scaleOrdinal()
+    const UnClassesColorScale = scaleOrdinal()
         .domain(palette.labels)
         .range(palette.colors); // bold from carto.com
 
@@ -141,44 +146,74 @@
         }
 
         map1.on("zoomanim", (e) => update(e));
-        update({ zoom: map1.getZoom(), center: map1.getCenter() });
+        update({zoom: map1.getZoom(), center: map1.getCenter()});
     }
 
     function createLinesBetweenCountries(map1) {
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
         // if stuff already there, delete first
         select("#linkGroup").remove();
+        select("#greyLinkGroup").remove();
+
+        d3Svg
+            .append("g")
+            .attr("id", "greyLinkGroup")
+            .attr("class", "leaflet-zoom-hide");
+
         d3Svg
             .append("g")
             .attr("id", "linkGroup")
             .attr("class", "leaflet-zoom-hide");
-
-        const feature = d3Svg
-            .select("#linkGroup")
+        const greyLinks = d3Svg
+            .select("#greyLinkGroup")
             .selectAll("line")
-            .data(filterdFlows)
+            .data(summedFlows.unidirectional)
             .enter()
             .append("line")
             .attr("stroke-width", 1)
+            .attr("stroke", "#525252")
+            .style("stroke-dasharray", ("3, 3"));
+
+        const coloredLinks = d3Svg
+            .select("#linkGroup")
+            .selectAll("line")
+            .data([...summedFlows.bidirectional, ...summedFlows.unidirectional])
+            .enter()
+            .append("line")
+            .attr("stroke-width", d => lineWidthScale(d.total))
             .attr("stroke", function (d) {
-                const max = d.un_classes.reduce((prev, current) =>
+                const max = d.original.un_classes.reduce((prev, current) =>
                     prev.value > current.value ? prev : current
                 );
                 return UnClassesColorScale(max.label);
             });
 
-        function mapGeometry(link, zoom, center) {
+        function mapGeometry(link, zoom, center, zeroflow = false) {
             var radius = 20;
-            var coords1 = map1._latLngToNewLayerPoint(
-                countries[link.origin_code].coordinates,
-                zoom,
-                center
-            );
-            var coords2 = map1._latLngToNewLayerPoint(
-                countries[link.destination_code].coordinates,
-                zoom,
-                center
-            );
+            if (zeroflow === false) {
+                var coords1 = map1._latLngToNewLayerPoint(
+                    countries[link.original.origin_code].coordinates,
+                    zoom,
+                    center
+                );
+                var coords2 = map1._latLngToNewLayerPoint(
+                    countries[link.original.destination_code].coordinates,
+                    zoom,
+                    center
+                );
+            } else { // change the direction of the relationship between the two nodes destination and origin
+                var coords1 = map1._latLngToNewLayerPoint(
+                    countries[link.original.destination_code].coordinates,
+                    zoom,
+                    center
+                );
+                var coords2 = map1._latLngToNewLayerPoint(
+                    countries[link.original.origin_code].coordinates,
+                    zoom,
+                    center
+                );
+            }
+
             var directionVector = {
                 x: coords2.x - coords1.x,
                 y: coords2.y - coords1.y,
@@ -196,26 +231,18 @@
                 x: coords1.x + (coords2.x - coords1.x) / 2,
                 y: coords1.y + (coords2.y - coords1.y) / 2,
             };
-            if (
-                isNaN(newCoords1.x) ||
-                isNaN(newCoords2.x) ||
-                isNaN(newCoords1.y) ||
-                isNaN(newCoords2.y)
-            )
-                console.log(
-                    link,
-                    coords1,
-                    coords2,
-                    directionVector,
-                    lengthOfVector,
-                    newCoords1,
-                    newCoords2
-                );
-            return { coords1: newCoords1, coords2: newCoords2 };
+            return {coords1: newCoords1, coords2: newCoords2};
         }
 
         function update(e) {
-            feature
+            // update grey links before colored links, so they are underneath them
+            greyLinks
+                .attr("x1", (d) => mapGeometry(d, e.zoom, e.center, true).coords1.x)
+                .attr("y1", (d) => mapGeometry(d, e.zoom, e.center, true).coords1.y)
+                .attr("x2", (d) => mapGeometry(d, e.zoom, e.center, true).coords2.x)
+                .attr("y2", (d) => mapGeometry(d, e.zoom, e.center, true).coords2.y);
+
+            coloredLinks
                 .attr("x1", (d) => mapGeometry(d, e.zoom, e.center).coords1.x)
                 .attr("y1", (d) => mapGeometry(d, e.zoom, e.center).coords1.y)
                 .attr("x2", (d) => mapGeometry(d, e.zoom, e.center).coords2.x)
@@ -223,14 +250,14 @@
         }
 
         map1.on("zoomanim", (e) => update(e));
-        update({ zoom: map1.getZoom(), center: map1.getCenter() });
+        update({zoom: map1.getZoom(), center: map1.getCenter()});
     }
 
     let map1;
 
     function onMount(container) {
         map1 = createMap(container);
-        svg({ clickable: true }).addTo(map1);
+        svg({clickable: true}).addTo(map1);
 
         return {
             destroy: () => {
@@ -252,17 +279,18 @@
             createCountryDonuts(map1);
         }
     }
+
 </script>
 
-<svelte:window on:resize={resizeMap} />
+<svelte:window on:resize={resizeMap}/>
 
 <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-    crossorigin=""
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+        crossorigin=""
 />
-<div id="map" class="w-100 h-full" use:onMount />
+<div id="map" class="w-100 h-full" use:onMount/>
 
 <style global>
     .map :global(.marker-text) {
