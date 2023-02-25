@@ -63,7 +63,7 @@
         // Setting initial position and zoom of map and restricting zoom
         let m = map(container, {
             preferCanvas: false,
-            maxZoom: 8,
+            maxZoom: 9,
             minZoom: 3,
             maxBounds: [
                 //south west

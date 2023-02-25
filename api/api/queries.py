@@ -32,6 +32,8 @@ def handle_l(y, n, c, l, points):
         return f""" 
         with t1 as (
 select
+    c1.label_{l} as origin,
+     {"" if points else f"c2.label_{l} as destination,"}       
 	(SUM(un1)/{handle_n(n)}) as un1,
 	(SUM(un3)/{handle_n(n)}) as un3,
 	(SUM(un4_1)/{handle_n(n)}) as un4_1,
@@ -44,9 +46,8 @@ select
 	(SUM(un8)/{handle_n(n)}) as un8,
 	(SUM(un9)/{handle_n(n)}) as un9,
 	(SUM(unspecified)/{handle_n(n)}) as unspecified,
-	(SUM(multiple)/{handle_n(n)}) as multiple,
-	c1.label_{l} as origin
-     {"" if points else ", c2.label_{l} as destination"}
+	(SUM(multiple)/{handle_n(n)}) as multiple
+	
 	
 from
 	exports as ex
@@ -54,10 +55,10 @@ from
 	ex.origin = c1.country 
     {"" if points else "inner join countries as c2 on ex.destination = c2.country"}
 {handle_y(y)}
-{"" if points else "and c1.label_{l} != c2.label_{l}"}
+{"" if points else f"and c1.label_{l} != c2.label_{l}"}
 group by
 	c1.label_{l}
-    {"" if points else ", c2.label_{l}"}
+    {"" if points else f", c2.label_{l}"}
         )
             """
     else:
@@ -242,6 +243,7 @@ def countries_query():
             )
             )
     from countries
+    order by name
     """
 
 def coords_query(l):
