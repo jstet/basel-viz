@@ -19,18 +19,12 @@
     export let flows;
     export let points;
 
-    let bidirectional;
-    let unidirectional;
-    $: bd = flows.bidirectional
-    $: ud = flows.unidirectional
-
     let filterdFlows = [];
     let maxFlowAmount;
     let mappedFlows;
 
-    $:console.log(ud)
-
     
+
     $: {
         filterdFlows = flows.filter(
             (d) => d.origin_code !== d.destination_code

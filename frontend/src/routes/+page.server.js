@@ -11,6 +11,9 @@ export async function load({ url }) {
 
     let flows_url = API_URL + "/flows?";
     let points_url = API_URL + "/points?";
+    let coords_url = API_URL + "/coords?";
+
+    let countries_url = API_URL + "/countries?";
 
     if (country) {
 
@@ -32,15 +35,35 @@ export async function load({ url }) {
     }
 
     
+    let flows_obj = {}
+    let points_obj = {}
+    let coords_obj = {}
+    for (let step = 0; step < 6; step++) {
+        flows_url + `l=${step}&`
+        points_url + `l=${step}&`
+        coords_url + `l=${step}&`
+        
+        let flows_response = await fetch(flows_url)
+        let flows = flows_response.json()
     
-    const flows_response = await fetch(flows_url)
-    const flows = flows_response.json()
+        let points_response = await fetch(points_url)
+        let points = points_response.json()
+
+        let coords_response = await fetch(coords_url)
+        let coords = coords_response.json()
+
+        flows_obj[step] = await flows
+        points_obj[step] = await points
+        coords_obj[step] = await coords
+      }
    
 
-    const points_response = await fetch(points_url)
-    const points = points_response.json()
+    const countries_response = await fetch(countries_url)
+    const countries = countries_response.json()
 
+    
+      
+    
 
-
-    return { flows: flows, points: points }
+    return { flows: flows_obj, points: points_obj, coords: coords_obj, countries: countries }
 }

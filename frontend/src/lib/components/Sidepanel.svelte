@@ -4,7 +4,6 @@
     import Slider from "@bulatdashiev/svelte-slider";
     import { palette } from "$lib/data/palette";
     import Modal from "$lib/components/Modal.svelte";
-    import countries from "$lib/geojson/countries.json";
     import { count } from "d3";
     import UN_class_1 from "$lib/svg/UN_class_1.svelte";
     import UN_class_3 from "$lib/svg/UN_class_3.svelte";
@@ -17,6 +16,8 @@
     import UN_class_6_2 from "$lib/svg/UN_class_6_2.svelte";
     import UN_class_8 from "$lib/svg/UN_class_8.svelte";
     import UN_class_9 from "$lib/svg/UN_class_9.svelte";
+    export let countries;
+
     let selected;
     let value = [2001, 2021];
     let range;
@@ -62,9 +63,11 @@
                 bind:value={selected}
             >
                 <option selected value="all">All</option>
+                {#if countries}
                 {#each Object.entries(countries) as country}
                     <option value={country[0]}>{country[1].name}</option>
                 {/each}
+                {/if}
             </select>
         </div>
         <div class="pb-3">
