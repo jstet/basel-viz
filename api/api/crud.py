@@ -26,8 +26,21 @@ def query_points(db: Session, c, y, n, l):
 
 def query_countries(db: Session):
     countries = to_lst(db.execute(text(countries_query())))
-    return countries
+    obj = {}
+    for i in countries:
+        key = list(i.keys())[0]
+
+        obj[key] = i[key]
+
+    return obj
+
 
 def  query_coords(db:Session, l):
     coords = to_lst(db.execute(text(coords_query(l))))
-    return coords
+    obj = {}
+    for i in coords:
+        key = list(i.keys())[0]
+
+        obj[key] = i[key]
+
+    return obj

@@ -247,7 +247,7 @@ def countries_query():
 def coords_query(l):
     return f"""
     select json_build_object(
-        country,  json_build_object(
+        {"country" if l==0 else f"label_{l}"},  json_build_object(
             'name', {"name" if l==0 else f"label_{l}"}, 'coordinates', json_build_array(lat_{l}, lon_{l})
             )
             )
