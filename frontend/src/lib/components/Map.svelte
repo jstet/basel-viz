@@ -196,22 +196,7 @@
                 x: coords1.x + (coords2.x - coords1.x) / 2,
                 y: coords1.y + (coords2.y - coords1.y) / 2,
             };
-            if (
-                isNaN(newCoords1.x) ||
-                isNaN(newCoords2.x) ||
-                isNaN(newCoords1.y) ||
-                isNaN(newCoords2.y)
-            )
-                console.log(
-                    link,
-                    coords1,
-                    coords2,
-                    directionVector,
-                    lengthOfVector,
-                    newCoords1,
-                    newCoords2
-                );
-            return { coords1: newCoords1, coords2: newCoords2 };
+            return {coords1: newCoords1, coords2: newCoords2};
         }
 
         function update(e) {
