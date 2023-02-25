@@ -243,6 +243,7 @@ def countries_query():
             )
             )
     from countries
+    order by name
     """
 
 def coords_query(l):
