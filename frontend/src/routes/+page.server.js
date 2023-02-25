@@ -31,25 +31,15 @@ export async function load({ url }) {
         points_url = points_url + `y=${y[0]}&y=${y[1]}&`
     }
 
-    console.log(flows_url)
-    console.log(url.searchParams.get("year"))
-    console.log(year)
-
-    
     
     
     const flows_response = await fetch(flows_url)
     const flows = flows_response.json()
-    const test = await flows
-    console.log(test.length)
    
-
-    
 
     const points_response = await fetch(points_url)
     const points = points_response.json()
-    const test = await flows
-    console.log(test.length)
+
 
 
     return { flows: flows, points: points }
