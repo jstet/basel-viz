@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from models import Export
-from queries import bidirect_query, unidirect_query, points_query
+from queries import *
 
 
 def to_lst(res):
@@ -13,14 +13,21 @@ def to_lst(res):
 
 
 
-def query_flows(db: Session, c, y):
-    print(bidirect_query(y, c))
-    bidirectional = to_lst(db.execute(text(bidirect_query(y, c))))
-    unidirectional = to_lst(db.execute(text(unidirect_query(y, c))))
-    
+def query_flows(db: Session, c, y, n, l):
+    bidirectional = to_lst(db.execute(text(bidirect_query( c=c, y=y, n=n, l=l))))
+    unidirectional = to_lst(db.execute(text(unidirect_query( c=c, y=y, n=n, l=l))))    
     return {"bidirectional": bidirectional, "unidirectional": unidirectional}
 
 
-def query_points(db: Session, c, y):
-    points = to_lst(db.execute(text(points_query)))
+def query_points(db: Session, c, y, n, l):
+    points = to_lst(db.execute(text(points_query( c=c, y=y, n=n, l=l))))
     return points
+
+
+def query_countries(db: Session):
+    countries = to_lst(db.execute(text(countries_query())))
+    return countries
+
+def  query_coords(db:Session, l):
+    coords = to_lst(db.execute(text(coords_query(l))))
+    return coords

@@ -3,6 +3,18 @@
 2. Activate environment
 3. Install requirements
 
+For windows:
+```
+python -m venv venv
+./venv/Scripts/activate
+python -m pip install -r requirements.txt
+```
+
+4. Create .env file
+```
+POSTGRES_URL=postgresql://postgres:postgres@localhost:5434/main
+```
+
 ## Starting API
 1. Start DB
 ```
