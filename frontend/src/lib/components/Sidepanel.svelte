@@ -4,7 +4,6 @@
     import Slider from "@bulatdashiev/svelte-slider";
     import { palette } from "$lib/data/palette";
     import Modal from "$lib/components/Modal.svelte";
-    import { count } from "d3";
     import UN_class_1 from "$lib/svg/UN_class_1.svelte";
     import UN_class_3 from "$lib/svg/UN_class_3.svelte";
     import UN_class_4_1 from "$lib/svg/UN_class_4_1.svelte";
@@ -16,26 +15,49 @@
     import UN_class_6_2 from "$lib/svg/UN_class_6_2.svelte";
     import UN_class_8 from "$lib/svg/UN_class_8.svelte";
     import UN_class_9 from "$lib/svg/UN_class_9.svelte";
-    export let countries;
 
+    export let select_options_in = [];
+
+    
+    let level = [3, 3];
     let selected;
-    let value = [2001, 2021];
-    let range;
+    let years = [2001, 2021];
     let normalize = false;
+    const levels = ["country", "sub_region", "region"];
+    const levels_label = ["Country", "Sub Region", "Region"];
+
+    let select_options = []
+    $: select_options = select_options_in[level[0]-1]
+
+    let range;
     let showModal = false;
 
     async function set_url() {
         const url = $page.url.searchParams;
-        url.set("country", selected);
+        url.set("selected", selected);
         url.set("normalize", normalize);
-        url.set("year", value);
+        url.set("years", years);
+        url.set("level", levels[level[0]-1]);
         await goto(`?${url}`, { invalidateAll: true });
     }
 
-    const components = {UN_class_1, UN_class_3, UN_class_4_1, UN_class_4_2, UN_class_4_3, UN_class_5_1, UN_class_5_2, UN_class_6_1, UN_class_6_2, UN_class_8, UN_class_9 }
+
+
+    const components = {
+        UN_class_1,
+        UN_class_3,
+        UN_class_4_1,
+        UN_class_4_2,
+        UN_class_4_3,
+        UN_class_5_1,
+        UN_class_5_2,
+        UN_class_6_1,
+        UN_class_6_2,
+        UN_class_8,
+        UN_class_9,
+    };
 </script>
 
-<!-- SUBMIT BUTTON-->
 <div class="p-3 ">
     <div class="mb-3 border-b">
         <h1 class="font-bold text-3xl pb-4">Basel Viz</h1>
@@ -54,40 +76,56 @@
 
     <div class="border-b mb-3">
         <h1 class="font-bold text-lg pb-4">Filter Options</h1>
-        <div class="pb-3">
-            <label class="pr-3" for="country">Country:</label>
-            <select
-                class="px-3"
-                name="country"
-                id="country"
-                bind:value={selected}
-            >
-                <option selected value="all">All</option>
-                {#if countries}
-                {#each Object.entries(countries) as country}
-                    <option value={country[0]}>{country[1].name}</option>
-                {/each}
-                {/if}
-            </select>
-        </div>
-        <div class="pb-3">
-            <p class="pb-3">Time Range:</p>
-            <div class=" px-6">
-                <Slider min={2001} max={2021} step="1" bind:value range>
+        <!-- Level Slider-->
+        <div class="pb-3 flex items-center">
+            <p class="">Level:</p>
+            <div class=" px-6 w-2/4">
+                <Slider min={1} max={3} step="1" bind:value={level}>
                     <div slot="left" class="bg-white">
-                        <span class="mb-2 border rounded-full py-1 px-3 "
-                            >{value[0]}</span
-                        >
-                    </div>
-                    <div slot="right" class="bg-white">
-                        <span class="mb-2 border rounded-full py-1 px-3 "
-                            >{value[1]}</span
+                        <span
+                            class="mb-2 border rounded-full py-1 px-3 "
+                            style="font-size: 20px;">{level[0]}</span
                         >
                     </div>
                 </Slider>
             </div>
         </div>
-
+        <!-- Dropdown -->
+        <div class="pb-3">
+            <label class="pr-3" for="select">Select:</label>
+            <select
+                class="px-3 w-2/4"
+                name="country"
+                id="select"
+                bind:value={selected}
+            >
+                <option selected value="all">All</option>
+                {#if select_options}
+                    {#each Object.entries(select_options) as option}
+                        <option value={option[0]}>{option[1].name}</option>
+                    {/each}
+                {/if}
+            </select>
+        </div>
+        <!-- Time Range Slider-->
+        <div class="pb-3">
+            <p class="pb-3">Time Range:</p>
+            <div class=" px-6">
+                <Slider min={2001} max={2021} step="1" bind:years range>
+                    <div slot="left" class="bg-white">
+                        <span class="mb-2 border rounded-full py-1 px-3 "
+                            >{years[0]}</span
+                        >
+                    </div>
+                    <div slot="right" class="bg-white">
+                        <span class="mb-2 border rounded-full py-1 px-3 "
+                            >{years[1]}</span
+                        >
+                    </div>
+                </Slider>
+            </div>
+        </div>
+        <!-- Normalize Checkbox -->
         <div class="pb-3">
             <label>
                 <input type="checkbox" bind:checked={normalize} />
@@ -136,7 +174,7 @@
         Created by Xenia Saar, Freya Moßig and Jonas Stettner
     </p>
 </div>
-
+<!-- Modal Content -->
 <Modal bind:showModal>
     <h2 class="font-bold text-3xl pb-4">Basel Viz</h2>
 
@@ -162,7 +200,11 @@
         scraped and aggregated for this visualization.
     </p>
     <p class="pb-10">
-        <a href="http://www.basel.int/" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Read more</a>
-    <p>
-   
-</Modal>
+        <a
+            href="http://www.basel.int/"
+            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+            >Read more</a
+        >
+    </p>
+    <p /></Modal
+>
