@@ -23,13 +23,18 @@
     $: flows = flows_in["2"]
     $: points = points_in["2"]
     $: coords = coords_in["2"]
-    
-    $: console.log(coords)
+
+    //$: console.log(coords)
 
     let summedFlows
+    let summedPoints
     let lineWidthScale
+    let DonutSizeScale
+    const innerRad = 7;
+    const minimumDonutWidth = 3
+    const maximumDonutWidth = 15
 
-    $: {
+    $: { // Flows
         summedFlows = {}
         Object.keys(flows).forEach(key => {
             summedFlows[key] = flows[key].map((d) => {
@@ -51,9 +56,35 @@
         }
         //console.log("maxFlowAmount: ", maxFlowAmount)
         lineWidthScale = scaleLog()
-            .base(Math.E)
-            .domain([0.01, maxFlowAmount]) // min and max values the trash amount can take
+            .base(Math.E) // todo find appropriate function to describe data
+            .domain([0.0001, maxFlowAmount]) // min and max values the trash amount can take
             .range([1, 8]); // min and max width of lines for the flows
+
+        // Points
+        summedPoints = {}
+        summedPoints = points.map((d) => {
+            return {
+                total: d.un_classes.reduce(
+                    (partial, current) => partial + current.value,
+                    0
+                ),
+                original: d,
+            };
+        });
+
+        let maxPointAmount = 0
+        for (const point of summedPoints) {
+            if (point.total > maxPointAmount) {
+                maxPointAmount = point.total;
+            }
+        }
+        //console.log("maxPointAmount: ", maxPointAmount)
+        DonutSizeScale = scaleLog()
+            .base(Math.E) // todo find appropriate function to describe data
+            .domain([0.0001, maxPointAmount]) // min and max values the trash amount can take
+            .range([minimumDonutWidth, maximumDonutWidth]); // min and max width of the donut
+
+        console.log(summedPoints)
         if (map1) {
             createLinesBetweenCountries(map1)
             createCountryDonuts(map1);
@@ -102,7 +133,7 @@
         var donutGroups = d3Svg
             .select("#donutGroup")
             .selectAll("g")
-            .data(points)
+            .data(summedPoints)
             .enter()
             .append("g");
 
@@ -116,8 +147,10 @@
         //slices
         var slice1 = donutGroups
             .selectAll("path")
-            //.data(d => pie1(d.properties.un_classes))
-            .data((d) => pie1(d.un_classes))
+            .data((d) =>  {
+                const test = pie1(d.original.un_classes)
+                test.forEach(element => element.data.total = d.total);
+                return test})
             .enter()
             .append("path")
             .attr("fill", function (d) {
@@ -125,19 +158,15 @@
             });
 
         function update(e) {
-            var radius = 20;
-            ///0.5 * Math.pow(2,e.zoom);
-
-            //arc generator
-            var arc1 = arc()
-                .innerRadius(radius * 0.5)
-                .outerRadius(radius);
-
-            donutGroups.selectAll("path").attr("d", arc1);
+            donutGroups.selectAll("path").attr("d", (d) => {
+                return arc()
+                    .innerRadius(innerRad)
+                    .outerRadius(innerRad + DonutSizeScale(d.data.total))(d);
+            });
             donutGroups
                 .attr("style", function (d) {
                     var coord = map1._latLngToNewLayerPoint(
-                        coords[d.origin_code].coordinates,
+                        coords[d.original.origin_code].coordinates,
                         e.zoom,
                         e.center
                     );
@@ -196,7 +225,7 @@
             });
 
         function mapGeometry(link, zoom, center, zeroflow = false) {
-            var radius = 20;
+            var radius = innerRad + minimumDonutWidth;
             if (zeroflow === false) {
                 var coords1 = map1._latLngToNewLayerPoint(
                     coords[link.original.origin_code].coordinates,
@@ -282,7 +311,9 @@
 
     $: {
         if (map1) {
-            map1.on("zoomend", function (e) { zoom = map1.getZoom()  });
+            map1.on("zoomend", function (e) {
+                zoom = map1.getZoom()
+            });
             createLinesBetweenCountries(map1);
             createCountryDonuts(map1);
         }
