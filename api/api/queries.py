@@ -268,23 +268,34 @@ def handle_y2(y):
     if y is None:
         where = ""
     else:
-        where = f""" year between {y[0]} and {y[1]} and"""
+        where = f""" year between {y[0]} and {y[1]}"""
     return where
 
 def noExports_query(l, y):
     return f"""
     with noExports as (
-    select {"*" if l=='countries' else "sub_regions, sub_region_lat, sub_region_lon" if l=='sub_regions' else "regions, region_lat, region_lon"}
-    from countries
-    where {handle_y2(y)}
-    {handle_name(l, 'code')} not in (select distinct origin 
-                			        from exports)
-    {"" if l=='countries' else "group by sub_regions" if l=='sub_regions' else "group by regions" }
-    )
+    
+    select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    from
+
+    (select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    from countries join exports on exports.destination=countries.code
+
+    union
+    
+    select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    from countries join exports on exports.origin=countries.code) as total
+
+    except
+	
+    select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    from exports as e2 join countries as c on  e2.origin=c.code
+    {"" if y==None else "where" + handle_y2(y)}
+    )                                
 
     select json_build_object(
-        {"country" if l=='countries' else "sub_regions" if l=='sub_regions' else "regions"},  json_build_object(
-            'name', {handle_name(l, 'name')}, 'coordinates', json_build_array({handle_name(l, 'lat')}, {handle_name(l, 'lon')})
+        {"code" if l=='countries' else "sub_region_code" if l=='sub_regions' else "region_code"},  json_build_object(
+            'name', {handle_name(l, 'code') if l!="countries" else "code"}, 'coordinates', json_build_array({handle_name(l, 'lat') if l!="countries" else "lat"}, {handle_name(l, 'lon') if l!="countries" else "lon"})
             )
             )
     from noExports
