@@ -1,10 +1,10 @@
-def handle_c(c):
-    if c is None:
+def handle_s(s):
+    if s is None:
         where = ""
     else:
         where = f"""
          where
-        origin = '{c}';
+        origin = '{s}';
         """
     return where
 
@@ -19,6 +19,14 @@ def handle_y(y):
         """
     return where
 
+def handle_name(l, type, table=""):
+    if table == "":
+        print({f"{l}_{type}" if l!="country" else "{type}"})
+        return f"{l}_{type}" if l!="country" else "{type}"
+    else:
+        print({f"{table}.{l}_{type}" if l!="country" else "{table}.{type}"})
+        return f"{table}.{l}_{type}" if l!="country" else "{table}.{type}"
+
 
 def handle_n(n):
     if n == True:
@@ -27,13 +35,11 @@ def handle_n(n):
     else:
         return 1
 
-def handle_l(y, n, c, l, points):
-    if l != 0:
+def handle_l(y, n, l, points):
+    if l != 'country':
         return f""" 
         with t1 as (
 select
-    c1.label_{l} as origin,
-     {"" if points else f"c2.label_{l} as destination,"}       
 	(SUM(un1)/{handle_n(n)}) as un1,
 	(SUM(un3)/{handle_n(n)}) as un3,
 	(SUM(un4_1)/{handle_n(n)}) as un4_1,
@@ -46,19 +52,20 @@ select
 	(SUM(un8)/{handle_n(n)}) as un8,
 	(SUM(un9)/{handle_n(n)}) as un9,
 	(SUM(unspecified)/{handle_n(n)}) as unspecified,
-	(SUM(multiple)/{handle_n(n)}) as multiple
-	
+	(SUM(multiple)/{handle_n(n)}) as multiple,
+	{f"c1.{l}_code" if l!="country" else "c1.code"} as origin
+    {f"" if points else ", " + handle_name(l,"code","c2") + " as destination" }
 	
 from
 	exports as ex
 	inner join countries as c1 on
-	ex.origin = c1.country 
-    {"" if points else "inner join countries as c2 on ex.destination = c2.country"}
+	ex.origin =  c1.code
+    {"" if points else "inner join countries as c2 on ex.destination = c2.code"}
 {handle_y(y)}
-{"" if points else f"and c1.label_{l} != c2.label_{l}"}
+{"" if points else "and " +  handle_name(l, "code", "c1")  + "!=" + handle_name(l, "code", "c2")}
 group by
-	c1.label_{l}
-    {"" if points else f", c2.label_{l}"}
+	{handle_name(l, "code", "c1")}
+    {"" if points else ", " + handle_name(l, "code", "c2")}
         )
             """
     else:
@@ -90,9 +97,9 @@ group by
         """
 
 
-def unidirect_query(y, c, n, l):
+def unidirect_query(y, s, n, l):
     return f"""
-    {handle_l( c=c, y=y, n=n, l=l, points = False)},
+    {handle_l( y=y, n=n, l=l, points = False)},
 
      bidirect as (
 		select
@@ -149,13 +156,13 @@ select * from bidirect
     from
         unidirect
         
-    {handle_c(c)};
+    {handle_s(s)};
     """
 
 
-def bidirect_query(y, c, n, l):
+def bidirect_query(y, s, n, l):
     return f"""
-    {handle_l( c=c, y=y, n=n, l=l, points=False)},
+    {handle_l(y=y, n=n, l=l, points=False)},
 bidirect as (
 		select
 			t1.origin,
@@ -202,13 +209,15 @@ bidirect as (
     from
         bidirect
 
-    {handle_c(c)};
+    {handle_s(s)};
     """
 
 
-def points_query(y, c, n, l ):
+def points_query(y, s, n, l ):
+    print(y)
     return f"""
-{handle_l(c=c, y=y, n=n, l=l, points=True)}
+    
+{handle_l(y=y, n=n, l=l, points=True)}
 
 select
     json_build_object(
@@ -231,27 +240,52 @@ select
     )
 from
     t1
-{handle_c(c)};
+{handle_s(s)};
 """
 
 
 def countries_query():
     return f"""
     select json_build_object(
-        country,  json_build_object(
-            'name', name, 'coordinates', json_build_array(lat_0, lon_0)
+        code,  json_build_object(
+            'name', name, 'coordinates', json_build_array(lat, lon)
             )
             )
     from countries
-    order by name
     """
 
 def coords_query(l):
     return f"""
     select json_build_object(
-        {"country" if l==0 else f"label_{l}"},  json_build_object(
-            'name', {"name" if l==0 else f"label_{l}"}, 'coordinates', json_build_array(lat_{l}, lon_{l})
+        {f"{l}_code" if l!="country" else "code"},  json_build_object(
+            'name', {f"{l}_name" if l!="country" else "name"}, 'coordinates', json_build_array({f"{l}_lat" if l!="country" else "lat"}, {f"{l}_lon" if l!="country" else "lon"})
             )
             )
     from countries
+    """
+
+def handle_y2(y):
+    if y is None:
+        where = ""
+    else:
+        where = f""" year between {y[0]} and {y[1]} and"""
+    return where
+
+def noExports_query(l, y):
+    return f"""
+    with noExports as (
+    select {"*" if l=='countries' else "sub_regions, sub_region_lat, sub_region_lon" if l=='sub_regions' else "regions, region_lat, region_lon"}
+    from countries
+    where {handle_y2(y)}
+    {handle_name(l, 'code')} not in (select distinct origin 
+                			        from exports)
+    {"" if l=='countries' else "group by sub_regions" if l=='sub_regions' else "group by regions" }
+    )
+
+    select json_build_object(
+        {"country" if l=='countries' else "sub_regions" if l=='sub_regions' else "regions"},  json_build_object(
+            'name', {handle_name(l, 'name')}, 'coordinates', json_build_array({handle_name(l, 'lat')}, {handle_name(l, 'lon')})
+            )
+            )
+    from noExports
     """

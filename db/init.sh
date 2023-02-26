@@ -28,29 +28,22 @@ FROM '/data/flows.csv'
 CSV HEADER DELIMITER ',';
 
  CREATE TABLE countries(
-    country VARCHAR(2) PRIMARY KEY,
-    lat_0 FLOAT,
-    lon_0 FLOAT,
+    code VARCHAR(2) PRIMARY KEY,
     name VARCHAR(50),
-    population INT,
-    label_1 VARCHAR(5),
-    lat_1 FLOAT,
-    lon_1 FLOAT,
-    label_2 VARCHAR(5),
-    lat_2 FLOAT,
-    lon_2 FLOAT,
-    label_3 VARCHAR(5),
-    lat_3 FLOAT,
-    lon_3 FLOAT,
-    label_4 VARCHAR(5),
-    lat_4 FLOAT,
-    lon_4 FLOAT,
-    label_5 VARCHAR(5),
-    lat_5 FLOAT,
-    lon_5 FLOAT
+    lat FLOAT,
+    lon FLOAT,
+    region_code INT,
+    region_name VARCHAR(50),
+    region_lat FLOAT,
+    region_lon FLOAT,
+    sub_region_code INT,
+    sub_region_name VARCHAR(50),
+    sub_region_lat FLOAT,
+    sub_region_lon FLOAT,
+    population INT
     );
   
-COPY countries(country, lat_0, lon_0, name, population, label_1, lat_1, lon_1, label_2, lat_2, lon_2, label_3, lat_3, lon_3, label_4, lat_4, lon_4, label_5, lat_5, lon_5)
+COPY countries(code,name,lat,lon,region_code,region_name,region_lat,region_lon,sub_region_code,sub_region_name, sub_region_lat, sub_region_lon,population)
 FROM '/data/countries.csv'
 CSV HEADER DELIMITER ',';
   
