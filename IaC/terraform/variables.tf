@@ -32,7 +32,7 @@ variable "user_data" {
   default = <<EOF
 #cloud-config
 
-hostname: jstet-jenkins
+hostname: jstet-basel-viz
 manage_etc_hosts: true
 locale: en_US.UTF-8
 timezone: Europe/Berlin
