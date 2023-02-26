@@ -2,9 +2,14 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.vault_pw
+
+build/
 
 # C extensions
 *.so
+
+setup.sh
 
 # Distribution / packaging
 .Python

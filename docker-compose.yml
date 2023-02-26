@@ -1,15 +1,15 @@
-version: "3.9"
+version: "3.8"
 services:
   postgres:
     container_name: db
-    image: db
+    image: localhost:5000/db
     build: ./db/.
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=main
     ports:
-      - 5434:5432
+      - 5432
     networks:
       - db
     healthcheck:
@@ -17,21 +17,39 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  api:
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+      restart_policy:
+        condition: on-failure
+
+  fastapi:
     container_name: api
-    depends_on:
-      postgres:
-        condition: service_healthy
-    image: api
+    image: localhost:5000/api
     build: ./api/.
-    environment:
-      POSTGRES_URL: postgresql://api:1234@db:5432/main
+    ports:
+      - 8000
     networks:
       - db
-    ports: 
-      - 3000:8000
+    environment:
+      - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/main
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+      restart_policy:
+        condition: on-failure
+
   frontend:
     container_name: frontend
+    image: localhost:5000/frontend
     build: ./frontend/.
     environment:
       API_URL: api:3000
@@ -39,6 +57,15 @@ services:
       - db
     ports:
       - 8000:3000
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+      restart_policy:
+        condition: on-failure
 
 networks:
   db:

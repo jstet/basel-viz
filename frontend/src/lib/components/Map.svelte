@@ -14,10 +14,17 @@
     import {palette} from "$lib/data/palette";
     import {geoTransform, select, geoPath, arc, pie, scaleOrdinal, scaleLog} from "d3";
 
-    import countries from "$lib/geojson/countries.json";
+    export let zoom;
 
-    export let flows;
-    export let points;
+    export let flows_in;
+    export let points_in;
+    export let coords_in;
+
+    $: flows = flows_in["2"]
+    $: points = points_in["2"]
+    $: coords = coords_in["2"]
+    
+    $: console.log(coords)
 
     let summedFlows
     let lineWidthScale
@@ -63,7 +70,7 @@
         // Setting initial position and zoom of map and restricting zoom
         let m = map(container, {
             preferCanvas: false,
-            maxZoom: 8,
+            maxZoom: 9,
             minZoom: 3,
             maxBounds: [
                 //south west
@@ -130,7 +137,7 @@
             donutGroups
                 .attr("style", function (d) {
                     var coord = map1._latLngToNewLayerPoint(
-                        countries[d.origin_code].coordinates,
+                        coords[d.origin_code].coordinates,
                         e.zoom,
                         e.center
                     );
@@ -192,23 +199,23 @@
             var radius = 20;
             if (zeroflow === false) {
                 var coords1 = map1._latLngToNewLayerPoint(
-                    countries[link.original.origin_code].coordinates,
+                    coords[link.original.origin_code].coordinates,
                     zoom,
                     center
                 );
                 var coords2 = map1._latLngToNewLayerPoint(
-                    countries[link.original.destination_code].coordinates,
+                    coords[link.original.destination_code].coordinates,
                     zoom,
                     center
                 );
             } else { // change the direction of the relationship between the two nodes destination and origin
                 var coords1 = map1._latLngToNewLayerPoint(
-                    countries[link.original.destination_code].coordinates,
+                    coords[link.original.destination_code].coordinates,
                     zoom,
                     center
                 );
                 var coords2 = map1._latLngToNewLayerPoint(
-                    countries[link.original.origin_code].coordinates,
+                    coords[link.original.origin_code].coordinates,
                     zoom,
                     center
                 );
@@ -275,6 +282,7 @@
 
     $: {
         if (map1) {
+            map1.on("zoomend", function (e) { zoom = map1.getZoom()  });
             createLinesBetweenCountries(map1);
             createCountryDonuts(map1);
         }
