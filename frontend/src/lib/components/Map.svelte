@@ -21,11 +21,9 @@
     export let coords_in;
 
 
-    $: flows = flows_in["0"]
-    $: points = points_in["0"]
-    $: coords = coords_in["0"]
-    
-    $: console.log(coords)
+    $: flows = flows_in
+    $: points = points_in
+    $: coords = coords_in
 
     let summedFlows
     let summedPoints
@@ -85,7 +83,6 @@
             .domain([0.0001, maxPointAmount]) // min and max values the trash amount can take
             .range([minimumDonutWidth, maximumDonutWidth]); // min and max width of the donut
 
-        console.log(summedPoints)
         if (map1) {
             createLinesBetweenCountries(map1)
             createCountryDonuts(map1);
