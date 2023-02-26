@@ -1,8 +1,8 @@
 export const palette = {
     "labels":
-        ["UN1", "UN2", "UN3", "UN4_1",
-            "UN4_2", "UN4_3", "UN5_1", "UN6_1",
-            "UN6_2", "UN8", "UN9",
+        ["UN_1", "UN_2", "UN_3", "UN_4_1",
+            "UN_4_2", "UN_4_3", "UN_5_1", "UN_6_1",
+            "UN_6_2", "UN_8", "UN_9",
             "unspecified", "multiple"],
     "colors": [
         "#be4b1c", "#11A579", "#3969AC", "#4B4B8FFF",
