@@ -2,7 +2,7 @@ version: "3.8"
 services:
   postgres:
     container_name: db
-    image: db
+    image: localhost:5000/db
     build: ./db/.
     environment:
       - POSTGRES_USER=postgres
@@ -29,7 +29,7 @@ services:
 
   fastapi:
     container_name: api
-    image: api
+    image: localhost:5000/api
     build: ./api/.
     ports:
       - 8000
@@ -49,6 +49,7 @@ services:
 
   frontend:
     container_name: frontend
+    image: localhost:5000/frontend
     build: ./frontend/.
     environment:
       API_URL: api:3000

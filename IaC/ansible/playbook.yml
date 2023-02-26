@@ -30,25 +30,49 @@
     #           buildkit: true
     #   become: true
     
-    - name: Clone a github repository
-      git:
-        repo: "https://github.com/{{  git_repo  }}"
-        dest: /home/user/basel_viz
-        clone: yes
-        update: yes
+    # - name: Clone a github repository
+    #   git:
+    #     repo: "https://github.com/{{  git_repo  }}"
+    #     dest: /home/user/basel_viz
+    #     clone: yes
+    #     update: yes
     
-    - name: Adding api .env
-      copy:
-        src: ../../api/api/.env
-        dest: /home/user/basel_viz/api/api/.env
+    # - name: Adding api .env
+    #   copy:
+    #     src: ../../api/api/.env
+    #     dest: /home/user/basel_viz/api/api/.env
 
-    - name: Adding frontend .env
-      copy:
-        src: ../../frontend/.env
-        dest: /home/user/basel_viz/frontend/.env
+    # - name: Adding frontend .env
+    #   copy:
+    #     src: ../../frontend/.env
+    #     dest: /home/user/basel_viz/frontend/.env
+
+    - name: restarting docker
+      shell:
+        service docker restart
+      become: yes
     
     - name: starting docker swarm mode
-      command:  docker swarm init
+      shell:  |
+        docker swarm init
+      ignore_errors: true
+
+    - name: run local container registry
+      shell: |
+        echo 'version: "3"
+        services:
+          registry:
+            image: registry:2
+            ports:
+              - 5000:5000
+            restart: always' > docker-compose.yml
+        docker-compose up -d
+
+
+    - name: building image
+      shell: |
+        docker compose build --no-cache
+        docker-compose push
   
     - name: deploying stack
       shell: |

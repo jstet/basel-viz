@@ -16,7 +16,7 @@ data "hetznerdns_zone" "dns_zone" {
 # Create server for deployment
 resource "hcloud_server" "main" {
   name        = var.image_name
-  image       = "debian-11"
+  image       = "ubuntu-20.04"
   server_type = "cx11"
   user_data   = var.user_data
 }
