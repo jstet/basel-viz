@@ -20,9 +20,9 @@
     export let points_in;
     export let coords_in;
 
-    $: flows = flows_in["2"]
-    $: points = points_in["2"]
-    $: coords = coords_in["2"]
+    $: flows = flows_in["0"]
+    $: points = points_in["0"]
+    $: coords = coords_in["0"]
     
     $: console.log(coords)
 
