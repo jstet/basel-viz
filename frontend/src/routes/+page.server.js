@@ -37,17 +37,17 @@ export async function load({ url }) {
     let points_obj = {}
     let coords_obj = {}
     for (let step = 0; step < 6; step++) {
-        flows_url + `l=${step}&`
-        points_url + `l=${step}&`
-        coords_url + `l=${step}&`
+        let tmp_flows_url = flows_url + `l=${step}&`
+        let tmp_points_url = points_url + `l=${step}&`
+        let tmp_coords_url = coords_url + `l=${step}&`
         
-        let flows_response = await fetch(flows_url)
+        let flows_response = await fetch(tmp_flows_url)
         let flows = flows_response.json()
     
-        let points_response = await fetch(points_url)
+        let points_response = await fetch(tmp_points_url)
         let points = points_response.json()
 
-        let coords_response = await fetch(coords_url)
+        let coords_response = await fetch(tmp_coords_url)
         let coords = coords_response.json()
 
         flows_obj[step] = await flows
