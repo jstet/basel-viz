@@ -4,7 +4,7 @@ def handle_s(s):
     else:
         where = f"""
          where
-        origin = '{s}';
+        origin = '{s}' or destination = '{s}';
         """
     return where
 
@@ -19,21 +19,37 @@ def handle_y(y):
         """
     return where
 
+
 def handle_name(l, type, table=""):
     if table == "":
-        return f"{l}_{type}" if l!="country" else f"{type}"
+        return f"{l}_{type}" if l != "country" else f"{type}"
     else:
-        return f"{table}.{l}_{type}" if l!="country" else f"{table}.{type}"
+        return f"{table}.{l}_{type}" if l != "country" else f"{table}.{type}"
 
 
-def handle_n(n,table=""):
+def handle_where(l, y, points, type, table=""):
+    print(points)
+    if y is None:
+        if points:
+            return ""
+        else:
+            return f"where {handle_name(l, 'code', 'c1')}  != {handle_name(l, 'code', 'c2')}"
+    else:
+        if points:
+            return ""
+        else:
+            return f"and {handle_name(l, 'code', 'c1')}  != {handle_name(l, 'code', 'c2')}"
+
+
+def handle_n(n, table=""):
     if n == True:
         pop = f"SUM({'' if table == '' else table + '.'}population)"
         return pop
     else:
         return 1
 
-def handle_l(y, n, l, points):
+
+def handle_l(y, n, l, points, s=""):
     if l != 'country':
         return f""" 
         with t1 as (
@@ -60,7 +76,8 @@ from
 	ex.origin =  c1.code
     {"" if points else "inner join countries as c2 on ex.destination = c2.code"}
 {handle_y(y)}
-{"" if points else "and " +  handle_name(l, "code", "c1")  + "!=" + handle_name(l, "code", "c2")}
+{handle_where(l=l, y=y, points=points, table="c1", type="code")}
+
 group by
 	{handle_name(l, "code", "c1")}
     {"" if points else ", " + handle_name(l, "code", "c2")}
@@ -210,34 +227,113 @@ bidirect as (
     """
 
 
-def points_query(y, s, n, l ):
-    return f"""
+def points_query(y, s, n, l):
+    beginning = f"""
     
-{handle_l(y=y, n=n, l=l, points=True)}
+        with t1 as (
+select distinct
+        (SUM(un1)/1) as un1,
+        (SUM(un3)/1) as un3,
+        (SUM(un4_1)/1) as un4_1,
+        (SUM(un4_2)/1) as un4_2,
+        (SUM(un4_3)/1) as un4_3,
+        (SUM(un5_1)/1) as un5_1,
+        (SUM(un5_2)/1) as un5_2,
+        (SUM(un6_1)/1) as un6_1,
+        (SUM(un6_2)/1) as un6_2,
+        (SUM(un8)/1) as un8,
+        (SUM(un9)/1) as un9,
+        (SUM(unspecified)/1) as unspecified,
+        (SUM(multiple)/1) as multiple,
+        {handle_name(l, "code","c1")} as origin
+    
+from
+        exports as ex
+        inner join countries as c1 on
+        ex.origin =  c1.code
+    
+{handle_y(y)}
+
+and ex.origin in (
+select
+	c2.code
+from
+	countries as c2
+{f"where {handle_name(l, 'code')} = '{s}'" if s != None else ""})
+        
+
+
+group by
+        {handle_name(l, "code","c1")}
+    
+        )
+
+ """     
+    imports = f""", imports as(
+		select 
+		(SUM(un1)/1) as un1,
+		(SUM(un3)/1) as un3,
+		(SUM(un4_1)/1) as un4_1,
+		(SUM(un4_2)/1) as un4_2,
+		(SUM(un4_3)/1) as un4_3,
+		(SUM(un5_1)/1) as un5_1,
+		(SUM(un5_2)/1) as un5_2,
+		(SUM(un6_1)/1) as un6_1,
+		(SUM(un6_2)/1) as un6_2,
+		(SUM(un8)/1) as un8,
+		(SUM(un9)/1) as un9,
+		(SUM(unspecified)/1) as unspecified,
+		(SUM(multiple)/1) as multiple,
+		{handle_name(l, "code","c1")} as origin
+		from
+		exports as ex
+		inner join countries as c1 on
+		ex.origin =  c1.code 
+	{handle_y(y)}
+and ex.destination in (select c2.code
+						from countries as c2
+						{f"where {handle_name(l, 'code')} = '{s}'" if s != None else ""})
+group by
+        {handle_name(l, "code","c1")}
+        )"""
+
+    
+    end= f""",final as (
+	{f" select* from imports where imports.origin != '{s}' union" if s != None else ""}
+	select
+	*
+	from
+	t1)
+        
 
 select
     json_build_object(
-        'origin_code', t1.origin,
+        'origin_code', final.origin,
         'un_classes', json_build_array(
-        json_build_object('label', 'UN_1', 'value', t1.un1),
-        json_build_object('label', 'UN_3', 'value', t1.un3),
-        json_build_object('label', 'UN_4_1', 'value', t1.un4_1),
-        json_build_object('label', 'UN_4_2', 'value', t1.un4_2),
-        json_build_object('label', 'UN_4_3', 'value', t1.un4_3),
-        json_build_object('label', 'UN_5_1', 'value', t1.un5_1),
-        json_build_object('label', 'UN_6_1', 'value', t1.un6_1),
-        json_build_object('label', 'UN_6_2', 'value', t1.un6_2),
-        json_build_object('label', 'UN_8', 'value', t1.un8),
-        json_build_object('label', 'UN_9', 'value', t1.un9),
-        json_build_object('label', 'unspecified', 'value', t1.unspecified),
-        json_build_object('label', 'multiple', 'value', t1.multiple)
+        json_build_object('label', 'UN_1', 'value', final.un1),
+        json_build_object('label', 'UN_3', 'value', final.un3),
+        json_build_object('label', 'UN_4_1', 'value', final.un4_1),
+        json_build_object('label', 'UN_4_2', 'value', final.un4_2),
+        json_build_object('label', 'UN_4_3', 'value', final.un4_3),
+        json_build_object('label', 'UN_5_1', 'value', final.un5_1),
+        json_build_object('label', 'UN_6_1', 'value', final.un6_1),
+        json_build_object('label', 'UN_6_2', 'value', final.un6_2),
+        json_build_object('label', 'UN_8', 'value', final.un8),
+        json_build_object('label', 'UN_9', 'value', final.un9),
+        json_build_object('label', 'unspecified', 'value', final.unspecified),
+        json_build_object('label', 'multiple', 'value', final.multiple)
         
     )
     )
 from
-    t1
-{handle_s(s)};
+    final
 """
+
+    if s is None:
+        return beginning + end
+    else:
+        return beginning + imports + end
+
 
 
 def countries_query():
@@ -250,7 +346,8 @@ def countries_query():
     from countries
     """
 
-def coords_query(l,d):
+
+def coords_query(l, d):
     return f"""
     select json_build_object(
         {f"{l}_code" if l!="country" else "code"},  json_build_object(
@@ -261,6 +358,7 @@ def coords_query(l,d):
     {"where destination_only = False" if d else ""}
     order by {handle_name(l, 'name')}
     """
+
 
 def handle_y2(y):
     if y is None:
