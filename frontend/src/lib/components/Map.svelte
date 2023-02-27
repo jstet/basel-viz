@@ -14,16 +14,10 @@
     import {palette} from "$lib/data/palette";
     import {geoTransform, select, geoPath, arc, pie, scaleOrdinal, scaleLog} from "d3";
 
-    export let zoom;
-
-    export let flows_in;
-    export let points_in;
-    export let coords_in;
-
-
-    $: flows = flows_in
-    $: points = points_in
-    $: coords = coords_in
+    export let flows;
+    export let points;
+    export let coords;
+    export let no_exports;
 
     let summedFlows
     let summedPoints
@@ -308,10 +302,7 @@
     }
 
     $: {
-        if (map1) {
-            map1.on("zoomend", function (e) {
-                zoom = map1.getZoom()
-            });
+        if (map1 && coords) {
             createLinesBetweenCountries(map1);
             createCountryDonuts(map1);
         }

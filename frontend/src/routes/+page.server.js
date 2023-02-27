@@ -11,6 +11,7 @@ export async function load({ url }) {
     let flows_url = API_URL + "/flows?";
     let points_url = API_URL + "/points?";
     let coords_url = API_URL + "/coords?";
+    let no_exports_url = API_URL + "/no_exports?";
 
     if (selected) {
         if (selected == "all") {
@@ -18,6 +19,7 @@ export async function load({ url }) {
         else {
             flows_url = flows_url + `s=${selected}&`
             points_url = points_url + `s=${selected}&`
+            no_exports_url = no_exports_url + `s=${selected}&`
 
         }
     }
@@ -25,11 +27,13 @@ export async function load({ url }) {
         let y = JSON.parse(`[${years}]`)
         flows_url = flows_url + `y=${y[0]}&y=${y[1]}&`
         points_url = points_url + `y=${y[0]}&y=${y[1]}&`
+        no_exports_url = no_exports_url + `y=${y[0]}&y=${y[1]}&`
     }
     if (level) {
         flows_url = flows_url + `l=${level}&`
         points_url = points_url + `l=${level}&`
         coords_url = coords_url + `l=${level}&`
+        no_exports_url = no_exports_url + `l=${level}&`
     }
 
 
@@ -41,6 +45,9 @@ export async function load({ url }) {
 
     const coords_response = await fetch(coords_url)
     const coords = coords_response.json()
+
+    const no_exports_response = await fetch(no_exports_url)
+    const no_exports = no_exports_response.json()
 
     let select_options_obj = []
     const levels = ["country", "sub_region", "region"];
@@ -56,5 +63,5 @@ export async function load({ url }) {
     // const countries_response = await fetch(countries_url)
     // const countries = countries_response.json()
     //   console.log(select_options_obj[0])
-    return { flows: flows, points: points, coords: coords, select_options: select_options_obj}
+    return { flows: flows, points: points, coords: coords, no_exports: no_exports, select_options: select_options_obj}
 }

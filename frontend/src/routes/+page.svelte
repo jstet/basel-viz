@@ -10,10 +10,12 @@
     $: coords = data.coords
     let select_options;
     $: select_options = data.select_options
+    let no_exports;
+    $: no_exports = data.no_exports
 
 </script>
 
 <div class="flex w-screen h-screen">
     <div class="w-1/5 border-r border-neutral-400 z-10 overflow-scroll" ><Sidepanel select_options_in={select_options}/></div>
-    <div class="w-4/5 h-100"><Map flows_in={flows} points_in={points} coords_in={coords}/></div>
+    <div class="w-4/5 h-100"><Map flows={flows} points={points} coords={coords} no_exports={no_exports}/></div>
 </div>

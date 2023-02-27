@@ -18,13 +18,29 @@
 
     export let select_options_in = [];
 
-    
-    let level = [3, 3];
-    let selected;
-    let years = [2001, 2021];
-    let normalize = false;
     const levels = ["country", "sub_region", "region"];
     const levels_label = ["Country", "Sub Region", "Region"];
+    let level = [3, 3];
+    if ($page.url.searchParams.get("level") !== "undefined"){
+        level = [levels.indexOf($page.url.searchParams.get("level"))+1,3]
+    }
+    
+    let selected;
+    if ($page.url.searchParams.get("selected") !== "undefined"){
+        selected = $page.url.searchParams.get("selected");
+    }
+    
+
+    let years = [2001, 2021];
+    if ($page.url.searchParams.get("years") !== "undefined"){
+        let y = JSON.parse(`[${$page.url.searchParams.get("years")}]`)
+        years[0] = y[0]
+        years[1] = y[1]
+    }
+
+    let normalize = false;
+    
+    
 
     let select_options = []
     $: select_options = select_options_in[level[0]-1]
@@ -80,7 +96,7 @@
         <div class="pb-3 flex items-center">
             <p class="">Level:</p>
             <div class=" px-6 w-2/4">
-                <Slider min={1} max={3} step="1" bind:value={level}>
+                <Slider min={1} max={3} step="1" bind:value={level} on:input={()=>{selected="all"}}>
                     <div slot="left" class="bg-white">
                         <span
                             class="mb-2 border rounded-full py-1 px-3 "
@@ -98,6 +114,7 @@
                 name="country"
                 id="select"
                 bind:value={selected}
+
             >
                 <option selected value="all">All</option>
                 {#if select_options}
@@ -111,7 +128,7 @@
         <div class="pb-3">
             <p class="pb-3">Time Range:</p>
             <div class=" px-6">
-                <Slider min={2001} max={2021} step="1" bind:years range>
+                <Slider min={2001} max={2021} step="1" bind:value={years} range>
                     <div slot="left" class="bg-white">
                         <span class="mb-2 border rounded-full py-1 px-3 "
                             >{years[0]}</span
