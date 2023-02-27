@@ -158,6 +158,7 @@ where (t1.origin, t1.destination) not in (select origin, destination from bidire
             json_build_object('label', 'UN_4_2', 'value', unidirect.un4_2),
             json_build_object('label', 'UN_4_3', 'value', unidirect.un4_3),
             json_build_object('label', 'UN_5_1', 'value', unidirect.un5_1),
+            json_build_object('label', 'UN_5_2', 'value', unidirect.un5_2),
             json_build_object('label', 'UN_6_1', 'value', unidirect.un6_1),
             json_build_object('label', 'UN_6_2', 'value', unidirect.un6_2),
             json_build_object('label', 'UN_8', 'value', unidirect.un8),
@@ -211,6 +212,7 @@ bidirect as (
             json_build_object('label', 'UN_4_2', 'value', bidirect.un4_2),
             json_build_object('label', 'UN_4_3', 'value', bidirect.un4_3),
             json_build_object('label', 'UN_5_1', 'value', bidirect.un5_1),
+            json_build_object('label', 'UN_5_2', 'value', bidirect.un5_2),
             json_build_object('label', 'UN_6_1', 'value', bidirect.un6_1),
             json_build_object('label', 'UN_6_2', 'value', bidirect.un6_2),
             json_build_object('label', 'UN_8', 'value', bidirect.un8),
@@ -316,6 +318,7 @@ select
         json_build_object('label', 'UN_4_2', 'value', final.un4_2),
         json_build_object('label', 'UN_4_3', 'value', final.un4_3),
         json_build_object('label', 'UN_5_1', 'value', final.un5_1),
+        json_build_object('label', 'UN_5_2', 'value', final.un5_2),
         json_build_object('label', 'UN_6_1', 'value', final.un6_1),
         json_build_object('label', 'UN_6_2', 'value', final.un6_2),
         json_build_object('label', 'UN_8', 'value', final.un8),
@@ -374,13 +377,15 @@ def no_exports_query(l, y, s):
     select distinct {handle_name(l, 'code', 'countries')}, {handle_name(l, 'name', 'countries')}, {handle_name(l, 'lat', 'countries')}, {handle_name(l, 'lon', 'countries')}
     from exports join countries on exports.destination=countries.code
     {"" if y==None else "where " + handle_y2(y)}
-    {f"" if s==None else ' and ' + f"'{s}'" + '=exports.origin' if y!=None else "where " + f"'{s}'" + '=exports.origin'}
+
+    {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
+    {f"exports.origin in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
     except
 	
     select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
     from countries as c join exports as e on e.origin=c.code
-    {"" if y==None else "where " + handle_y2(y)}
-    {"" if s==None else ' and ' + f"'{s}'" + '=e.destination' if y!=None else "where " + f"'{s}'" + '=e.destination'}
+    {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
+    {f"e.destination in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
     )
     select json_build_object(
         'origin_code', {handle_name(l, 'code')})
