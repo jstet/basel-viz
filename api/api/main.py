@@ -61,8 +61,8 @@ def get_countries(db: Session = Depends(get_db)):
 
 
 @app.get("/coords", response_class=ORJSONResponse)
-def get_countries(db: Session = Depends(get_db),  l: Union[str, None] = Query(default='region', max_length=10, regex=lvl)):
-    results = query_coords(db,l)
+def get_countries(db: Session = Depends(get_db),  l: Union[str, None] = Query(default='region', max_length=10, regex=lvl), d: Union[bool, None] = Query(default=False)):
+    results = query_coords(db,l,d)
     return ORJSONResponse(results)
 
 @app.get("/no_exports", response_class=ORJSONResponse)

@@ -34,8 +34,8 @@ def query_countries(db: Session):
     return to_obj(countries)
 
 
-def  query_coords(db:Session, l):
-    coords = to_lst(db.execute(text(coords_query(l))))
+def  query_coords(db:Session, l,d):
+    coords = to_lst(db.execute(text(coords_query(l,d))))
     return to_obj(coords)
 
 def  query_no_exports(db:Session, l, y):

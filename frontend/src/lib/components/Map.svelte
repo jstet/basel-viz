@@ -220,10 +220,11 @@
             });
 
         function mapGeometry(link, zoom, center, zeroflow = false) {
-            // console.log(link.original.origin_code)
+            
 
             var radius = innerRad + minimumDonutWidth;
             if (zeroflow === false) {
+                
                 var coords1 = map1._latLngToNewLayerPoint(
                     coords[link.original.origin_code].coordinates,
                     zoom,
@@ -235,6 +236,7 @@
                     center
                 );
             } else {
+                
                 // change the direction of the relationship between the two nodes destination and origin
                 var coords1 = map1._latLngToNewLayerPoint(
                     coords[link.original.destination_code].coordinates,
@@ -269,7 +271,6 @@
         }
 
         // update grey links before colored links, so they are underneath them
-        console.log(zoom,center);
         greyLinks
             .attr("x1", (d) => mapGeometry(d, zoom, center, true).coords1.x)
             .attr("y1", (d) => mapGeometry(d, zoom, center, true).coords1.y)
@@ -308,7 +309,6 @@
 
     $: {
         if (map1 && coords) {
-            console.log("1");
             createLinesBetweenCountries(map1, map1.getZoom(), map1.getCenter());
             createCountryDonuts(map1, map1.getZoom(), map1.getCenter());
         }

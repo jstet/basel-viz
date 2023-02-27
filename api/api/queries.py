@@ -252,7 +252,7 @@ def countries_query():
     from countries
     """
 
-def coords_query(l):
+def coords_query(l,d):
     return f"""
     select json_build_object(
         {f"{l}_code" if l!="country" else "code"},  json_build_object(
@@ -260,7 +260,7 @@ def coords_query(l):
             )
             )
     from countries
-    where destination_only = False
+    {"where destination_only = True" if d else ""}
     order by {handle_name(l, 'name')}
     """
 
