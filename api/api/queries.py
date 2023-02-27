@@ -71,6 +71,7 @@ group by
     with t1 as (
 select
 	origin,
+    {"" if points else "destination,"}
 	SUM(un1) as un1,
 	SUM(un3) as un3,
 	SUM(un4_1) as un4_1,
@@ -89,6 +90,7 @@ from
 {handle_y(y)}
 group by
 	origin
+    {"" if points else ",destination"}
         )
         """
 
