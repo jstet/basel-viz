@@ -123,6 +123,41 @@
         ).addTo(m);
         return m;
     }
+    function createEmptyCircles(map1, zoom, center) {
+        //Adds a svg to the map which always contains all the things we add into it
+        var d3Svg = select(map1.getPanes().overlayPane).select("svg");
+        // if stuff already there, delete first
+        select("#CircleGroup").remove();
+
+        d3Svg.append("g").attr("id", "CircleGroup");
+        var circleGroups = d3Svg
+            .select("#CircleGroup")
+            .selectAll("circle")
+            .data(no_exports)
+            .enter()
+            .append("circle")
+            .attr("r", innerRad + minimumDonutWidth)
+            .attr("stroke", "#525252")
+            .attr("fill", "none")
+            .attr("class", "leaflet-zoom-hide")
+            .attr("cx", function (d) {
+                var coord = map1._latLngToNewLayerPoint(
+                    coords[d.origin_code].coordinates,
+                    zoom,
+                    center
+                );
+                return coord.x;
+            })
+            .attr("cy", function (d) {
+                var coord = map1._latLngToNewLayerPoint(
+                    coords[d.origin_code].coordinates,
+                    zoom,
+                    center
+                );
+                return coord.y;
+            })
+            .attr("class", "leaflet-zoom-hide");
+    }
 
     function createCountryDonuts(map1, zoom, center) {
         //Adds a svg to the map which always contains all the things we add into it
@@ -289,6 +324,7 @@
         svg({ clickable: true }).addTo(map1);
         map1.on("zoomanim", (e) => {
             createLinesBetweenCountries(map1, e.zoom, e.center);
+            createEmptyCircles(map1, e.zoom, e.center);
             createCountryDonuts(map1, e.zoom, e.center);
         });
         return {
@@ -308,6 +344,7 @@
     $: {
         if (map1 && coords) {
             createLinesBetweenCountries(map1, map1.getZoom(), map1.getCenter());
+            createEmptyCircles(map1, map1.getZoom(), map1.getCenter());
             createCountryDonuts(map1, map1.getZoom(), map1.getCenter());
         }
     }
