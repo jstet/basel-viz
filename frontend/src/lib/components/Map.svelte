@@ -36,6 +36,9 @@
     const innerRad = 7;
     const minimumDonutWidth = 3;
     const maximumDonutWidth = 15;
+    const circleBorderColor = "#525252"
+    const greyLinkColor = "#525252"
+
 
     $: {
         // Flows
@@ -132,6 +135,7 @@
         ).addTo(m);
         return m;
     }
+
     function createEmptyCircles(map1, zoom, center) {
         //Adds a svg to the map which always contains all the things we add into it
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
@@ -146,7 +150,8 @@
             .enter()
             .append("circle")
             .attr("r", innerRad + minimumDonutWidth)
-            .attr("stroke", "#525252")
+            .attr("stroke", circleBorderColor)
+            .attr("stroke-width", 2)
             .attr("fill", "none")
             .attr("class", "leaflet-zoom-hide")
             .attr("cx", function (d) {
@@ -182,12 +187,40 @@
             .enter()
             .append("g");
 
+        donutGroups
+            .attr("style", function (d) {
+                var coord = map1._latLngToNewLayerPoint(
+                    coords[d.original.origin_code].coordinates,
+                    zoom,
+                    center
+                );
+                return (
+                    "transform: translate(" + coord.x + "px," + coord.y + "px)"
+                );
+            })
+            .attr("class", "leaflet-zoom-hide");
+
         // pie generator
         var pie1 = pie()
             .sort(null)
             .value(function (d) {
                 return d.value;
             });
+
+        // Donut border
+        var outerCircle = donutGroups
+            .selectAll("circle")
+            .data(d => [d])
+            .enter()
+            .append("circle")
+            .attr("stroke", circleBorderColor)
+            .attr("stroke-width", 2)
+            .attr("r", d => { if (d.original.origin_code==="gb") {
+                console.log("data : ", d);
+            };
+                return innerRad + DonutSizeScale(d.total) +1
+            })
+            .attr("cx", "0").attr("cy", "0").attr("fill", "none")
 
         //slices
         var slice1 = donutGroups
@@ -201,25 +234,13 @@
             .append("path")
             .attr("fill", function (d) {
                 return UnClassesColorScale(d.data.label);
+            })
+            .attr("d", (d) => {
+                return arc()
+                    .innerRadius(innerRad)
+                    .outerRadius(innerRad + DonutSizeScale(d.data.total))(d);
             });
 
-        donutGroups.selectAll("path").attr("d", (d) => {
-            return arc()
-                .innerRadius(innerRad)
-                .outerRadius(innerRad + DonutSizeScale(d.data.total))(d);
-        });
-        donutGroups
-            .attr("style", function (d) {
-                var coord = map1._latLngToNewLayerPoint(
-                    coords[d.original.origin_code].coordinates,
-                    zoom,
-                    center
-                );
-                return (
-                    "transform: translate(" + coord.x + "px," + coord.y + "px)"
-                );
-            })
-            .attr("class", "leaflet-zoom-hide");
     }
 
     function createLinesBetweenCountries(map1, zoom, center) {
@@ -244,7 +265,7 @@
             .enter()
             .append("line")
             .attr("stroke-width", 1)
-            .attr("stroke", "#525252")
+            .attr("stroke", greyLinkColor)
             .style("stroke-dasharray", "3, 3");
 
         var coloredLinks = d3Svg
@@ -262,11 +283,11 @@
             });
 
         function mapGeometry(link, zoom, center, zeroflow = false) {
-            
+
 
             var radius = innerRad + minimumDonutWidth;
             if (zeroflow === false) {
-                
+
                 var coords1 = map1._latLngToNewLayerPoint(
                     coords[link.original.origin_code].coordinates,
                     zoom,
@@ -278,7 +299,7 @@
                     center
                 );
             } else {
-                
+
                 // change the direction of the relationship between the two nodes destination and origin
                 var coords1 = map1._latLngToNewLayerPoint(
                     coords[link.original.destination_code].coordinates,
@@ -309,7 +330,7 @@
                 x: coords1.x + (coords2.x - coords1.x) / 2,
                 y: coords1.y + (coords2.y - coords1.y) / 2,
             };
-            return { coords1: newCoords1, coords2: newCoords2 };
+            return {coords1: newCoords1, coords2: newCoords2};
         }
 
         // update grey links before colored links, so they are underneath them
@@ -330,7 +351,7 @@
 
     function onMount(container) {
         map1 = createMap(container);
-        svg({ clickable: true }).addTo(map1);
+        svg({clickable: true}).addTo(map1);
         map1.on("zoomanim", (e) => {
             createLinesBetweenCountries(map1, e.zoom, e.center);
             createEmptyCircles(map1, e.zoom, e.center);
@@ -359,15 +380,15 @@
     }
 </script>
 
-<svelte:window on:resize={resizeMap} />
+<svelte:window on:resize={resizeMap}/>
 
 <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-    crossorigin=""
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+        crossorigin=""
 />
-<div id="map" class="w-100 h-full" use:onMount />
+<div id="map" class="w-100 h-full" use:onMount/>
 
 <style global>
     :global(.leaflet-zoom-anim #donutGroup > g) {
