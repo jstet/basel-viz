@@ -11,25 +11,36 @@
         GeoJSON,
         svg,
     } from "leaflet";
-    import {palette} from "$lib/data/palette";
-    import {geoTransform, select, geoPath, arc, pie, scaleOrdinal, scaleLog} from "d3";
+    import { palette } from "$lib/data/palette";
+    import {
+        geoTransform,
+        select,
+        geoPath,
+        arc,
+        pie,
+        scaleOrdinal,
+        scaleLog,
+    } from "d3";
 
     export let flows;
     export let points;
     export let coords;
     export let no_exports;
 
-    let summedFlows
-    let summedPoints
-    let lineWidthScale
-    let DonutSizeScale
-    const innerRad = 7;
-    const minimumDonutWidth = 3
-    const maximumDonutWidth = 15
+    // $: console.log(coords)
 
-    $: { // Flows
-        summedFlows = {}
-        Object.keys(flows).forEach(key => {
+    let summedFlows;
+    let summedPoints;
+    let lineWidthScale;
+    let DonutSizeScale;
+    const innerRad = 7;
+    const minimumDonutWidth = 3;
+    const maximumDonutWidth = 15;
+
+    $: {
+        // Flows
+        summedFlows = {};
+        Object.keys(flows).forEach((key) => {
             summedFlows[key] = flows[key].map((d) => {
                 return {
                     total: d.un_classes.reduce(
@@ -42,7 +53,10 @@
         });
 
         let maxFlowAmount = 0;
-        for (const flow of [...summedFlows.bidirectional, ...summedFlows.unidirectional]) {
+        for (const flow of [
+            ...summedFlows.bidirectional,
+            ...summedFlows.unidirectional,
+        ]) {
             if (flow.total > maxFlowAmount) {
                 maxFlowAmount = flow.total;
             }
@@ -54,7 +68,7 @@
             .range([1, 8]); // min and max width of lines for the flows
 
         // Points
-        summedPoints = {}
+        summedPoints = {};
         summedPoints = points.map((d) => {
             return {
                 total: d.un_classes.reduce(
@@ -65,7 +79,7 @@
             };
         });
 
-        let maxPointAmount = 0
+        let maxPointAmount = 0;
         for (const point of summedPoints) {
             if (point.total > maxPointAmount) {
                 maxPointAmount = point.total;
@@ -76,12 +90,9 @@
             .base(Math.E) // todo find appropriate function to describe data
             .domain([0.0001, maxPointAmount]) // min and max values the trash amount can take
             .range([minimumDonutWidth, maximumDonutWidth]); // min and max width of the donut
-
-        if (map1) {
-            createLinesBetweenCountries(map1)
-            createCountryDonuts(map1);
-        }
     }
+
+    $: console.log(summedFlows);
 
     const initialView = [20, 0];
 
@@ -115,7 +126,7 @@
         return m;
     }
 
-    function createCountryDonuts(map1) {
+    function createCountryDonuts(map1, zoom, center) {
         //Adds a svg to the map which always contains all the things we add into it
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
         // if stuff already there, delete first
@@ -139,45 +150,37 @@
         //slices
         var slice1 = donutGroups
             .selectAll("path")
-            .data((d) =>  {
-                const test = pie1(d.original.un_classes)
-                test.forEach(element => element.data.total = d.total);
-                return test})
+            .data((d) => {
+                const test = pie1(d.original.un_classes);
+                test.forEach((element) => (element.data.total = d.total));
+                return test;
+            })
             .enter()
             .append("path")
             .attr("fill", function (d) {
                 return UnClassesColorScale(d.data.label);
             });
 
-        function update(e) {
-            donutGroups.selectAll("path").attr("d", (d) => {
-                return arc()
-                    .innerRadius(innerRad)
-                    .outerRadius(innerRad + DonutSizeScale(d.data.total))(d);
-            });
-            donutGroups
-                .attr("style", function (d) {
-                    var coord = map1._latLngToNewLayerPoint(
-                        coords[d.original.origin_code].coordinates,
-                        e.zoom,
-                        e.center
-                    );
-                    return (
-                        "transform: translate(" +
-                        coord.x +
-                        "px," +
-                        coord.y +
-                        "px)"
-                    );
-                })
-                .attr("class", "leaflet-zoom-hide");
-        }
-
-        map1.on("zoomanim", (e) => update(e));
-        update({zoom: map1.getZoom(), center: map1.getCenter()});
+        donutGroups.selectAll("path").attr("d", (d) => {
+            return arc()
+                .innerRadius(innerRad)
+                .outerRadius(innerRad + DonutSizeScale(d.data.total))(d);
+        });
+        donutGroups
+            .attr("style", function (d) {
+                var coord = map1._latLngToNewLayerPoint(
+                    coords[d.original.origin_code].coordinates,
+                    zoom,
+                    center
+                );
+                return (
+                    "transform: translate(" + coord.x + "px," + coord.y + "px)"
+                );
+            })
+            .attr("class", "leaflet-zoom-hide");
     }
 
-    function createLinesBetweenCountries(map1) {
+    function createLinesBetweenCountries(map1, zoom, center) {
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
         // if stuff already there, delete first
         select("#linkGroup").remove();
@@ -192,7 +195,7 @@
             .append("g")
             .attr("id", "linkGroup")
             .attr("class", "leaflet-zoom-hide");
-        const greyLinks = d3Svg
+        var greyLinks = d3Svg
             .select("#greyLinkGroup")
             .selectAll("line")
             .data(summedFlows.unidirectional)
@@ -200,15 +203,15 @@
             .append("line")
             .attr("stroke-width", 1)
             .attr("stroke", "#525252")
-            .style("stroke-dasharray", ("3, 3"));
+            .style("stroke-dasharray", "3, 3");
 
-        const coloredLinks = d3Svg
+        var coloredLinks = d3Svg
             .select("#linkGroup")
             .selectAll("line")
             .data([...summedFlows.bidirectional, ...summedFlows.unidirectional])
             .enter()
             .append("line")
-            .attr("stroke-width", d => lineWidthScale(d.total))
+            .attr("stroke-width", (d) => lineWidthScale(d.total))
             .attr("stroke", function (d) {
                 const max = d.original.un_classes.reduce((prev, current) =>
                     prev.value > current.value ? prev : current
@@ -217,6 +220,8 @@
             });
 
         function mapGeometry(link, zoom, center, zeroflow = false) {
+            // console.log(link.original.origin_code)
+
             var radius = innerRad + minimumDonutWidth;
             if (zeroflow === false) {
                 var coords1 = map1._latLngToNewLayerPoint(
@@ -229,7 +234,8 @@
                     zoom,
                     center
                 );
-            } else { // change the direction of the relationship between the two nodes destination and origin
+            } else {
+                // change the direction of the relationship between the two nodes destination and origin
                 var coords1 = map1._latLngToNewLayerPoint(
                     coords[link.original.destination_code].coordinates,
                     zoom,
@@ -259,34 +265,33 @@
                 x: coords1.x + (coords2.x - coords1.x) / 2,
                 y: coords1.y + (coords2.y - coords1.y) / 2,
             };
-            return {coords1: newCoords1, coords2: newCoords2};
+            return { coords1: newCoords1, coords2: newCoords2 };
         }
 
-        function update(e) {
-            // update grey links before colored links, so they are underneath them
-            greyLinks
-                .attr("x1", (d) => mapGeometry(d, e.zoom, e.center, true).coords1.x)
-                .attr("y1", (d) => mapGeometry(d, e.zoom, e.center, true).coords1.y)
-                .attr("x2", (d) => mapGeometry(d, e.zoom, e.center, true).coords2.x)
-                .attr("y2", (d) => mapGeometry(d, e.zoom, e.center, true).coords2.y);
+        // update grey links before colored links, so they are underneath them
+        console.log(zoom,center);
+        greyLinks
+            .attr("x1", (d) => mapGeometry(d, zoom, center, true).coords1.x)
+            .attr("y1", (d) => mapGeometry(d, zoom, center, true).coords1.y)
+            .attr("x2", (d) => mapGeometry(d, zoom, center, true).coords2.x)
+            .attr("y2", (d) => mapGeometry(d, zoom, center, true).coords2.y);
 
-            coloredLinks
-                .attr("x1", (d) => mapGeometry(d, e.zoom, e.center).coords1.x)
-                .attr("y1", (d) => mapGeometry(d, e.zoom, e.center).coords1.y)
-                .attr("x2", (d) => mapGeometry(d, e.zoom, e.center).coords2.x)
-                .attr("y2", (d) => mapGeometry(d, e.zoom, e.center).coords2.y);
-        }
-
-        map1.on("zoomanim", (e) => update(e));
-        update({zoom: map1.getZoom(), center: map1.getCenter()});
+        coloredLinks
+            .attr("x1", (d) => mapGeometry(d, zoom, center).coords1.x)
+            .attr("y1", (d) => mapGeometry(d, zoom, center).coords1.y)
+            .attr("x2", (d) => mapGeometry(d, zoom, center).coords2.x)
+            .attr("y2", (d) => mapGeometry(d, zoom, center).coords2.y);
     }
 
     let map1;
 
     function onMount(container) {
         map1 = createMap(container);
-        svg({clickable: true}).addTo(map1);
-
+        svg({ clickable: true }).addTo(map1);
+        map1.on("zoomanim", (e) => {
+            createLinesBetweenCountries(map1, e.zoom, e.center);
+            createCountryDonuts(map1, e.zoom, e.center);
+        });
         return {
             destroy: () => {
                 map1.remove();
@@ -303,38 +308,24 @@
 
     $: {
         if (map1 && coords) {
-            createLinesBetweenCountries(map1);
-            createCountryDonuts(map1);
+            console.log("1");
+            createLinesBetweenCountries(map1, map1.getZoom(), map1.getCenter());
+            createCountryDonuts(map1, map1.getZoom(), map1.getCenter());
         }
     }
-
 </script>
 
-<svelte:window on:resize={resizeMap}/>
+<svelte:window on:resize={resizeMap} />
 
 <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-        crossorigin=""
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+    crossorigin=""
 />
-<div id="map" class="w-100 h-full" use:onMount/>
+<div id="map" class="w-100 h-full" use:onMount />
 
 <style global>
-    .map :global(.marker-text) {
-        width: 100%;
-        text-align: center;
-        font-weight: 600;
-        background-color: #444;
-        color: #eee;
-        border-radius: 0.5rem;
-    }
-
-    .map :global(.map-marker) {
-        width: 30px;
-        transform: translateX(-50%) translateY(-25%);
-    }
-
     :global(.leaflet-zoom-anim #donutGroup > g) {
         transition: transform 0.25s cubic-bezier(0, 0, 0.25, 1);
     }
