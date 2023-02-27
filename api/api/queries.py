@@ -26,9 +26,9 @@ def handle_name(l, type, table=""):
         return f"{table}.{l}_{type}" if l!="country" else f"{table}.{type}"
 
 
-def handle_n(n):
+def handle_n(n,table=""):
     if n == True:
-        pop = f"SUM(c1.population)"
+        pop = f"SUM({'' if table == '' else table + '.'}population)"
         return pop
     else:
         return 1
@@ -38,19 +38,19 @@ def handle_l(y, n, l, points):
         return f""" 
         with t1 as (
 select
-	(SUM(un1)/{handle_n(n)}) as un1,
-	(SUM(un3)/{handle_n(n)}) as un3,
-	(SUM(un4_1)/{handle_n(n)}) as un4_1,
-	(SUM(un4_2)/{handle_n(n)}) as un4_2,
-	(SUM(un4_3)/{handle_n(n)}) as un4_3,
-	(SUM(un5_1)/{handle_n(n)}) as un5_1,
-	(SUM(un5_2)/{handle_n(n)}) as un5_2,
-	(SUM(un6_1)/{handle_n(n)}) as un6_1,
-	(SUM(un6_2)/{handle_n(n)}) as un6_2,
-	(SUM(un8)/{handle_n(n)}) as un8,
-	(SUM(un9)/{handle_n(n)}) as un9,
-	(SUM(unspecified)/{handle_n(n)}) as unspecified,
-	(SUM(multiple)/{handle_n(n)}) as multiple,
+	(SUM(un1)/{handle_n(n,"c1")}) as un1,
+	(SUM(un3)/{handle_n(n,"c1")}) as un3,
+	(SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
+	(SUM(un4_2)/{handle_n(n,"c1")}) as un4_2,
+	(SUM(un4_3)/{handle_n(n,"c1")}) as un4_3,
+	(SUM(un5_1)/{handle_n(n,"c1")}) as un5_1,
+	(SUM(un5_2)/{handle_n(n,"c1")}) as un5_2,
+	(SUM(un6_1)/{handle_n(n,"c1")}) as un6_1,
+	(SUM(un6_2)/{handle_n(n,"c1")}) as un6_2,
+	(SUM(un8)/{handle_n(n,"c1")}) as un8,
+	(SUM(un9)/{handle_n(n,"c1")}) as un9,
+	(SUM(unspecified)/{handle_n(n,"c1")}) as unspecified,
+	(SUM(multiple)/{handle_n(n,"c1")}) as multiple,
 	{f"c1.{l}_code" if l!="country" else "c1.code"} as origin
     {f"" if points else ", " + handle_name(l,"code","c2") + " as destination" }
 	
@@ -72,24 +72,24 @@ group by
 select
 	origin,
     {"" if points else "destination,"}
-	SUM(un1) as un1,
-	SUM(un3) as un3,
-	SUM(un4_1) as un4_1,
-	SUM(un4_2) as un4_2,
-	SUM(un4_3) as un4_3,
-	SUM(un5_1) as un5_1,
-	SUM(un5_2) as un5_2,
-	SUM(un6_1) as un6_1,
-	SUM(un6_2) as un6_2,
-	SUM(un8) as un8,
-	SUM(un9) as un9,
-	SUM(unspecified) as unspecified,
-	SUM(multiple) as multiple
+	(SUM(un1){"/(select population from countries where code = origin)" if n else ""}) as un1,
+	(SUM(un3){"/(select population from countries where code = origin)" if n else ""}) as un3,
+	(SUM(un4_1){"/(select population from countries where code = origin)" if n else ""}) as un4_1,
+	(SUM(un4_2){"/(select population from countries where code = origin)" if n else ""}) as un4_2,
+	(SUM(un4_3){"/(select population from countries where code = origin)" if n else ""}) as un4_3,
+	(SUM(un5_1){"/(select population from countries where code = origin)" if n else ""}) as un5_1,
+	(SUM(un5_2){"/(select population from countries where code = origin)" if n else ""}) as un5_2,
+	(SUM(un6_1){"/(select population from countries where code = origin)" if n else ""}) as un6_1,
+	(SUM(un6_2){"/(select population from countries where code = origin)" if n else ""}) as un6_2,
+	(SUM(un8){"/(select population from countries where code = origin)" if n else ""}) as un8,
+	(SUM(un9){"/(select population from countries where code = origin)" if n else ""}) as un9,
+	(SUM(unspecified){"/(select population from countries where code = origin)" if n else ""}) as unspecified,
+	(SUM(multiple){"/(select population from countries where code = origin)" if n else ""}) as multiple
 from
-	exports
+       exports
 {handle_y(y)}
 group by
-	origin
+        origin
     {"" if points else ",destination"}
         )
         """

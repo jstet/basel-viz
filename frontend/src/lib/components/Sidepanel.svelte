@@ -39,6 +39,9 @@
     }
 
     let normalize = false;
+    if ($page.url.searchParams.get("normalize") !== null){
+       normalize = JSON.parse($page.url.searchParams.get("normalize"))
+    }
     
     
 

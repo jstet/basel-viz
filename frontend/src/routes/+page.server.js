@@ -7,6 +7,7 @@ export async function load({ url }) {
     let selected = url.searchParams.get("selected")
     let level = url.searchParams.get("level")
     let years = url.searchParams.get("years")
+    let normalize = url.searchParams.get("normalize")
 
     let flows_url = API_URL + "/flows?";
     let points_url = API_URL + "/points?";
@@ -35,7 +36,14 @@ export async function load({ url }) {
         coords_url = coords_url + `l=${level}&`
         no_exports_url = no_exports_url + `l=${level}&`
     }
+    if (normalize) {
+        flows_url = flows_url + `n=${normalize}&`
+        points_url = points_url + `n=${normalize}&`
+        coords_url = coords_url + `n=${normalize}&`
+        no_exports_url = no_exports_url + `n=${normalize}&`
+    }
 
+    console.log(flows_url)
 
     const flows_response = await fetch(flows_url)
     const flows = flows_response.json()
