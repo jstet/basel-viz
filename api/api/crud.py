@@ -25,6 +25,7 @@ def query_flows(db: Session, s, y, n, l):
 
 
 def query_points(db: Session, s, y, n, l):
+    print(points_query(s=s, y=y, n=n, l=l))
     points = to_lst(db.execute(text(points_query(s=s, y=y, n=n, l=l))))
     return points
 

@@ -71,7 +71,6 @@ group by
     with t1 as (
 select
 	origin,
-	destination,
 	SUM(un1) as un1,
 	SUM(un3) as un3,
 	SUM(un4_1) as un4_1,
@@ -89,8 +88,7 @@ from
 	exports
 {handle_y(y)}
 group by
-	origin,
-	destination
+	origin
         )
         """
 
@@ -212,7 +210,6 @@ bidirect as (
 
 
 def points_query(y, s, n, l ):
-    print(y)
     return f"""
     
 {handle_l(y=y, n=n, l=l, points=True)}
