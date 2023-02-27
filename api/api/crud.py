@@ -39,6 +39,7 @@ def  query_coords(db:Session, l,d):
     coords = to_lst(db.execute(text(coords_query(l,d))))
     return to_obj(coords)
 
-def  query_no_exports(db:Session, l, y):
-    coords = to_lst(db.execute(text(no_exports_query(l, y))))
+def  query_no_exports(db:Session, l, y, s):
+    print(no_exports_query(l, y,s))
+    coords = to_lst(db.execute(text(no_exports_query(l, y,s))))
     return to_obj(coords)

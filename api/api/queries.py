@@ -270,28 +270,21 @@ def handle_y2(y):
         where = f""" year between {y[0]} and {y[1]}"""
     return where
 
-def no_exports_query(l, y):
+
+def no_exports_query(l, y, s):
     return f"""
     with noExports as (
-    
-    select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
-    from
-
-    (select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
-    from countries join exports on exports.destination=countries.code
-
-    union
-    
-    select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
-    from countries join exports on exports.origin=countries.code) as total
-
+    select distinct {handle_name(l, 'code', 'countries')}, {handle_name(l, 'name', 'countries')}, {handle_name(l, 'lat', 'countries')}, {handle_name(l, 'lon', 'countries')}
+    from exports join countries on exports.destination=countries.code
+    {"" if y==None else "where " + handle_y2(y)}
+    {f"" if s==None else ' and ' + f"'{s}'" + '=exports.origin' if y!=None else "where " + f"'{s}'" + '=exports.origin'}
     except
 	
     select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
-    from exports as e2 join countries as c on  e2.origin=c.code
-    {"" if y==None else "where" + handle_y2(y)}
-    )                                
-
+    from countries as c join exports as e on e.origin=c.code
+    {"" if y==None else "where " + handle_y2(y)}
+    {"" if s==None else ' and ' + f"'{s}'" + '=e.destination' if y!=None else "where " + f"'{s}'" + '=e.destination'}
+    )
     select json_build_object(
         {handle_name(l, 'code')},  json_build_object(
             'name', {handle_name(l, 'name')}, 'coordinates', json_build_array({handle_name(l, 'lat')}, {handle_name(l, 'lon')})
