@@ -374,13 +374,15 @@ def no_exports_query(l, y, s):
     select distinct {handle_name(l, 'code', 'countries')}, {handle_name(l, 'name', 'countries')}, {handle_name(l, 'lat', 'countries')}, {handle_name(l, 'lon', 'countries')}
     from exports join countries on exports.destination=countries.code
     {"" if y==None else "where " + handle_y2(y)}
-    {f"" if s==None else ' and ' + f"'{s}'" + '=exports.origin' if y!=None else "where " + f"'{s}'" + '=exports.origin'}
+
+    {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
+    {f"exports.origin in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
     except
 	
     select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
     from countries as c join exports as e on e.origin=c.code
-    {"" if y==None else "where " + handle_y2(y)}
-    {"" if s==None else ' and ' + f"'{s}'" + '=e.destination' if y!=None else "where " + f"'{s}'" + '=e.destination'}
+    {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
+    {f"e.destination in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
     )
     select json_build_object(
         'origin_code', {handle_name(l, 'code')})

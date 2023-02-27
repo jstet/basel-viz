@@ -28,7 +28,6 @@ def query_flows(db: Session, s, y, n, l):
 
 
 def query_points(db: Session, s, y, n, l):
-    print(points_query(s=s, y=y, n=n, l=l))
     points = to_lst(db.execute(text(points_query(s=s, y=y, n=n, l=l))))
     return points
 
@@ -43,6 +42,6 @@ def  query_coords(db:Session, l,d):
     return to_obj(coords)
 
 def  query_no_exports(db:Session, l, y, s):
-    
+    print(no_exports_query(l, y,s))
     coords = to_lst(db.execute(text(no_exports_query(l, y,s))))
     return coords
