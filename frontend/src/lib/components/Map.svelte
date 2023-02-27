@@ -53,6 +53,7 @@
         });
 
         let maxFlowAmount = 0;
+        let minFlowAmount = 999999999999 // the highest flow is around 30 Million, this should be a good starting point
         for (const flow of [
             ...summedFlows.bidirectional,
             ...summedFlows.unidirectional,
@@ -60,12 +61,16 @@
             if (flow.total > maxFlowAmount) {
                 maxFlowAmount = flow.total;
             }
+            if (flow.total < minFlowAmount) {
+                if (flow.total === 0) console.log("Backend still hasnt fixed the zero in Object: ", flow)
+                else minFlowAmount = flow.total;
+            }
         }
         //console.log("maxFlowAmount: ", maxFlowAmount)
         lineWidthScale = scaleLog()
             .base(Math.E) // todo find appropriate function to describe data
-            .domain([0.0001, maxFlowAmount]) // min and max values the trash amount can take
-            .range([1, 8]); // min and max width of lines for the flows
+            .domain([minFlowAmount, maxFlowAmount]) // min and max values the trash amount can take
+            .range([1, 7]); // min and max width of lines for the flows
 
         // Points
         summedPoints = {};
@@ -80,15 +85,19 @@
         });
 
         let maxPointAmount = 0;
+        let minPointAmount = 999999999999 // the highest flow is around 30 Million, this should be a good starting point
         for (const point of summedPoints) {
             if (point.total > maxPointAmount) {
                 maxPointAmount = point.total;
+            }
+            if (point.total < minPointAmount) {
+                minPointAmount = point.total;
             }
         }
         //console.log("maxPointAmount: ", maxPointAmount)
         DonutSizeScale = scaleLog()
             .base(Math.E) // todo find appropriate function to describe data
-            .domain([0.0001, maxPointAmount]) // min and max values the trash amount can take
+            .domain([minPointAmount, maxPointAmount]) // min and max values the trash amount can take
             .range([minimumDonutWidth, maximumDonutWidth]); // min and max width of the donut
     }
 
