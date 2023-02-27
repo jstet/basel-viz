@@ -37,7 +37,7 @@ def handle_l(y, n, l, points):
     if l != 'country':
         return f""" 
         with t1 as (
-select
+select distinct
 	(SUM(un1)/{handle_n(n,"c1")}) as un1,
 	(SUM(un3)/{handle_n(n,"c1")}) as un3,
 	(SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
@@ -126,8 +126,7 @@ select
 	*
 from
 	t1
-except
-select * from bidirect	
+where (t1.origin, t1.destination) not in (select origin, destination from bidirect)	
 	)
     
 
