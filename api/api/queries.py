@@ -285,10 +285,7 @@ def no_exports_query(l, y, s):
     {"" if s==None else ' and ' + f"'{s}'" + '=e.destination' if y!=None else "where " + f"'{s}'" + '=e.destination'}
     )
     select json_build_object(
-        {handle_name(l, 'code')},  json_build_object(
-            'name', {handle_name(l, 'name')}, 'coordinates', json_build_array({handle_name(l, 'lat')}, {handle_name(l, 'lon')})
-            )
-            )
+        'origin_code', {handle_name(l, 'code')})
     from noExports
     order by {handle_name(l, 'name')}
     """

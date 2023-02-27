@@ -45,4 +45,4 @@ def  query_coords(db:Session, l,d):
 def  query_no_exports(db:Session, l, y, s):
     
     coords = to_lst(db.execute(text(no_exports_query(l, y,s))))
-    return to_obj(coords)
+    return coords
