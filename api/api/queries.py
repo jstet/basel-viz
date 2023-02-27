@@ -21,11 +21,9 @@ def handle_y(y):
 
 def handle_name(l, type, table=""):
     if table == "":
-        print({f"{l}_{type}" if l!="country" else "{type}"})
-        return f"{l}_{type}" if l!="country" else "{type}"
+        return f"{l}_{type}" if l!="country" else f"{type}"
     else:
-        print({f"{table}.{l}_{type}" if l!="country" else "{table}.{type}"})
-        return f"{table}.{l}_{type}" if l!="country" else "{table}.{type}"
+        return f"{table}.{l}_{type}" if l!="country" else f"{table}.{type}"
 
 
 def handle_n(n):
@@ -262,6 +260,8 @@ def coords_query(l):
             )
             )
     from countries
+    where destination_only = False
+    order by {handle_name(l, 'name')}
     """
 
 def handle_y2(y):
@@ -271,32 +271,33 @@ def handle_y2(y):
         where = f""" year between {y[0]} and {y[1]}"""
     return where
 
-def noExports_query(l, y):
+def no_exports_query(l, y):
     return f"""
     with noExports as (
     
-    select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
     from
 
-    (select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    (select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
     from countries join exports on exports.destination=countries.code
 
     union
     
-    select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
     from countries join exports on exports.origin=countries.code) as total
 
     except
 	
-    select distinct {f"{l}_code" if l!="countries" else "code"}, {f"{l}_name" if l!="countries" else "name"}, {f"{l}_lat" if l!="countries" else "lat"}, {f"{l}_lon" if l!="countries" else "lon"}
+    select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
     from exports as e2 join countries as c on  e2.origin=c.code
     {"" if y==None else "where" + handle_y2(y)}
     )                                
 
     select json_build_object(
-        {"code" if l=='countries' else "sub_region_code" if l=='sub_regions' else "region_code"},  json_build_object(
-            'name', {handle_name(l, 'code') if l!="countries" else "code"}, 'coordinates', json_build_array({handle_name(l, 'lat') if l!="countries" else "lat"}, {handle_name(l, 'lon') if l!="countries" else "lon"})
+        {handle_name(l, 'code')},  json_build_object(
+            'name', {handle_name(l, 'name')}, 'coordinates', json_build_array({handle_name(l, 'lat')}, {handle_name(l, 'lon')})
             )
             )
     from noExports
+    order by {handle_name(l, 'name')}
     """

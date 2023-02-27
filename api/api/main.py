@@ -65,8 +65,8 @@ def get_countries(db: Session = Depends(get_db),  l: Union[str, None] = Query(de
     results = query_coords(db,l)
     return ORJSONResponse(results)
 
-@app.get("/noExports", response_class=ORJSONResponse)
+@app.get("/no_exports", response_class=ORJSONResponse)
 def get_noExports(db: Session = Depends(get_db),  l: Union[str, None] = Query(default='region', max_length=10),  y: List[int] = Query(None)):
-    results = query_noExports(db, l, y)
+    results = query_no_exports(db, l, y)
     return ORJSONResponse(results)
 
