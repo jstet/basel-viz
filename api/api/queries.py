@@ -259,7 +259,7 @@ def coords_query(l,d):
             )
             )
     from countries
-    {"where destination_only = True" if d else ""}
+    {"where destination_only = False" if d else ""}
     order by {handle_name(l, 'name')}
     """
 

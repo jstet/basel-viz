@@ -92,8 +92,6 @@
             .range([minimumDonutWidth, maximumDonutWidth]); // min and max width of the donut
     }
 
-    $: console.log(summedFlows);
-
     const initialView = [20, 0];
 
     const UnClassesColorScale = scaleOrdinal()

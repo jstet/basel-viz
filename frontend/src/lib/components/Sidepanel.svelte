@@ -21,18 +21,18 @@
     const levels = ["country", "sub_region", "region"];
     const levels_label = ["Country", "Sub Region", "Region"];
     let level = [3, 3];
-    if ($page.url.searchParams.get("level") !== "undefined"){
+    if ($page.url.searchParams.get("level") !== null){
         level = [levels.indexOf($page.url.searchParams.get("level"))+1,3]
     }
     
-    let selected;
-    if ($page.url.searchParams.get("selected") !== "undefined"){
+    let selected = "all";
+    if ($page.url.searchParams.get("selected") !== null){
         selected = $page.url.searchParams.get("selected");
     }
     
 
     let years = [2001, 2021];
-    if ($page.url.searchParams.get("years") !== "undefined"){
+    if ($page.url.searchParams.get("years") !== null){
         let y = JSON.parse(`[${$page.url.searchParams.get("years")}]`)
         years[0] = y[0]
         years[1] = y[1]

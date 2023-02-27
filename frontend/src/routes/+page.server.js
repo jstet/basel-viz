@@ -53,7 +53,7 @@ export async function load({ url }) {
     const levels = ["country", "sub_region", "region"];
     for (let i = 0; i < levels.length; i++) {
         
-        let select_options_url = API_URL + "/coords?l=" + levels[i]
+        let select_options_url = API_URL + "/coords?d=True&l=" + levels[i]
         let select_options_response = await fetch(select_options_url)
         let select_options = select_options_response.json()
         select_options_obj[i] = await select_options
