@@ -234,21 +234,33 @@ def points_query(y, s, n, l):
     
         with t1 as (
 select distinct
-        (SUM(un1)/1) as un1,
-        (SUM(un3)/1) as un3,
-        (SUM(un4_1)/1) as un4_1,
-        (SUM(un4_2)/1) as un4_2,
-        (SUM(un4_3)/1) as un4_3,
-        (SUM(un5_1)/1) as un5_1,
-        (SUM(un5_2)/1) as un5_2,
-        (SUM(un6_1)/1) as un6_1,
-        (SUM(un6_2)/1) as un6_2,
-        (SUM(un8)/1) as un8,
-        (SUM(un9)/1) as un9,
-        (SUM(unspecified)/1) as unspecified,
-        (SUM(multiple)/1) as multiple,
-        {handle_name(l, "code","c1")} as origin
-    
+        (SUM(un1)/{handle_n(n,"c1")}) as un1,
+        (SUM(un3)/{handle_n(n,"c1")}) as un3,
+        (SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
+        (SUM(un4_2)/{handle_n(n,"c1")}) as un4_2,
+        (SUM(un4_3)/{handle_n(n,"c1")}) as un4_3,
+        (SUM(un5_1)/{handle_n(n,"c1")}) as un5_1,
+        (SUM(un5_2)/{handle_n(n,"c1")}) as un5_2,
+        (SUM(un6_1)/{handle_n(n,"c1")}) as un6_1,
+        (SUM(un6_2)/{handle_n(n,"c1")}) as un6_2,
+        (SUM(un8)/{handle_n(n,"c1")}) as un8,
+        (SUM(un9)/{handle_n(n,"c1")}) as un9,
+        (SUM(unspecified)/{handle_n(n,"c1")}) as unspecified,
+        (SUM(multiple)/{handle_n(n,"c1")}) as multiple,
+        {handle_name(l, "code","c1")} as origin,
+        SUM(un1) as abs_un1,
+        SUM(un3) as abs_un3,
+        SUM(un4_1) as abs_un4_1,
+        SUM(un4_2) as abs_un4_2,
+        SUM(un4_3) as abs_un4_3,
+        SUM(un5_1) as abs_un5_1,
+        SUM(un5_2) as abs_un5_2,
+        SUM(un6_1) as abs_un6_1,
+        SUM(un6_2) as abs_un6_2,
+        SUM(un8) as abs_un8,
+        SUM(un9) as abs_un9,
+        SUM(unspecified) as abs_unspecified,
+        SUM(multiple) as abs_multiple   
 from
         exports as ex
         inner join countries as c1 on
@@ -273,20 +285,34 @@ group by
  """     
     imports = f""", imports as(
 		select 
-		(SUM(un1)/1) as un1,
-		(SUM(un3)/1) as un3,
-		(SUM(un4_1)/1) as un4_1,
-		(SUM(un4_2)/1) as un4_2,
-		(SUM(un4_3)/1) as un4_3,
-		(SUM(un5_1)/1) as un5_1,
-		(SUM(un5_2)/1) as un5_2,
-		(SUM(un6_1)/1) as un6_1,
-		(SUM(un6_2)/1) as un6_2,
-		(SUM(un8)/1) as un8,
-		(SUM(un9)/1) as un9,
-		(SUM(unspecified)/1) as unspecified,
-		(SUM(multiple)/1) as multiple,
-		{handle_name(l, "code","c1")} as origin
+		(SUM(un1)/{handle_n(n,"c1")}) as un1,
+		(SUM(un3)/{handle_n(n,"c1")}) as un3,
+		(SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
+		(SUM(un4_2)/{handle_n(n,"c1")}) as un4_2,
+		(SUM(un4_3)/{handle_n(n,"c1")}) as un4_3,
+		(SUM(un5_1)/{handle_n(n,"c1")}) as un5_1,
+		(SUM(un5_2)/{handle_n(n,"c1")}) as un5_2,
+		(SUM(un6_1)/{handle_n(n,"c1")}) as un6_1,
+		(SUM(un6_2)/{handle_n(n,"c1")}) as un6_2,
+		(SUM(un8)/{handle_n(n,"c1")}) as un8,
+		(SUM(un9)/{handle_n(n,"c1")}) as un9,
+		(SUM(unspecified)/{handle_n(n,"c1")}) as unspecified,
+		(SUM(multiple)/{handle_n(n,"c1")}) as multiple,
+		{handle_name(l, "code","c1")} as origin,
+        SUM(un1) as abs_un1,
+		SUM(un3) as abs_un3,
+		SUM(un4_1) as abs_un4_1,
+		SUM(un4_2) as abs_un4_2,
+		SUM(un4_3) as abs_un4_3,
+		SUM(un5_1) as abs_un5_1,
+		SUM(un5_2) as abs_un5_2,
+		SUM(un6_1) as abs_un6_1,
+		SUM(un6_2) as abs_un6_2,
+		SUM(un8) as abs_un8,
+		SUM(un9) as abs_un9,
+		SUM(unspecified) as abs_unspecified,
+		SUM(multiple) as abs_multiple
+
 		from
 		exports as ex
 		inner join countries as c1 on
@@ -305,8 +331,7 @@ group by
 	select
 	*
 	from
-	t1)
-        
+	t1)       
 
 select
     json_build_object(
@@ -325,7 +350,21 @@ select
         json_build_object('label', 'UN_9', 'value', final.un9),
         json_build_object('label', 'unspecified', 'value', final.unspecified),
         json_build_object('label', 'multiple', 'value', final.multiple)
-        
+        ),
+        'abs_un_classes', json_build_array(
+        json_build_object('label', 'UN_1', 'value', final.abs_un1),
+        json_build_object('label', 'UN_3', 'value', final.abs_un3),
+        json_build_object('label', 'UN_4_1', 'value', final.abs_un4_1),
+        json_build_object('label', 'UN_4_2', 'value', final.abs_un4_2),
+        json_build_object('label', 'UN_4_3', 'value', final.abs_un4_3),
+        json_build_object('label', 'UN_5_1', 'value', final.abs_un5_1),
+        json_build_object('label', 'UN_5_2', 'value', final.abs_un5_2),
+        json_build_object('label', 'UN_6_1', 'value', final.abs_un6_1),
+        json_build_object('label', 'UN_6_2', 'value', final.abs_un6_2),
+        json_build_object('label', 'UN_8', 'value', final.abs_un8),
+        json_build_object('label', 'UN_9', 'value', final.abs_un9),
+        json_build_object('label', 'unspecified', 'value', final.abs_unspecified),
+        json_build_object('label', 'multiple', 'value', final.abs_multiple)
     )
     )
 from
