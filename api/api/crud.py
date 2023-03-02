@@ -18,17 +18,17 @@ def to_obj(x):
         obj[key] = i[key]
     return obj
 
-def query_flows(db: Session, s, y, n, l):
-    bidirectional = to_lst(db.execute(text(bidirect_query(s=s, y=y, n=n, l=l))))
-    unidirectional = to_lst(db.execute(text(unidirect_query(s=s, y=y, n=n, l=l))))    
-    print(unidirect_query(s=s, y=y, n=n, l=l))
+def query_flows(db: Session, s, y, n, l, u):
+    bidirectional = to_lst(db.execute(text(bidirect_query(s=s, y=y, n=n, l=l, u=u))))
+    unidirectional = to_lst(db.execute(text(unidirect_query(s=s, y=y, n=n, l=l, u=u))))    
+    print(unidirect_query(s=s, y=y, n=n, l=l, u=u))
     print("uni", len(unidirectional))
     print(len(bidirectional))
     return {"bidirectional": bidirectional, "unidirectional": unidirectional}
 
 
-def query_points(db: Session, s, y, n, l):
-    points = to_lst(db.execute(text(points_query(s=s, y=y, n=n, l=l))))
+def query_points(db: Session, s, y, n, l, u):
+    points = to_lst(db.execute(text(points_query(s=s, y=y, n=n, l=l, u=u))))
     return points
 
 

@@ -19,7 +19,7 @@
     export let select_options_in = [];
 
     const levels = ["country", "sub_region", "region"];
-    const levels_label = ["Country", "Sub Region", "Region"];
+    const levels_label = ["Country", "Subregion", "Region"];
     let level = [3, 3];
     if ($page.url.searchParams.get("level") !== null){
         level = [levels.indexOf($page.url.searchParams.get("level"))+1,3]
@@ -98,12 +98,12 @@
         <!-- Level Slider-->
         <div class="pb-3 flex items-center">
             <p class="">Level:</p>
-            <div class=" px-6 w-2/4">
+            <div class=" px-8 w-3/4">
                 <Slider min={1} max={3} step="1" bind:value={level} on:input={()=>{selected="all"}}>
                     <div slot="left" class="bg-white">
                         <span
                             class="mb-2 border rounded-full py-1 px-3 "
-                            style="font-size: 20px;">{level[0]}</span
+                            style="font-size: 14px;">{levels_label[level[0]-1]}</span
                         >
                     </div>
                 </Slider>
@@ -149,7 +149,7 @@
         <div class="pb-3">
             <label>
                 <input type="checkbox" bind:checked={normalize} />
-                Normalize
+                Per capita
             </label>
         </div>
         <button
