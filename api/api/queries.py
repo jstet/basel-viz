@@ -49,24 +49,24 @@ def handle_n(n, table=""):
         return 1
 
 
-def handle_l(y, n, l, points, s=""):
+def handle_l(y, n, l, points, u, s=""):
     if l != 'country':
         return f""" 
         with t1 as (
 select distinct
-	(SUM(un1)/{handle_n(n,"c1")}) as un1,
-	(SUM(un3)/{handle_n(n,"c1")}) as un3,
-	(SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
-	(SUM(un4_2)/{handle_n(n,"c1")}) as un4_2,
-	(SUM(un4_3)/{handle_n(n,"c1")}) as un4_3,
-	(SUM(un5_1)/{handle_n(n,"c1")}) as un5_1,
-	(SUM(un5_2)/{handle_n(n,"c1")}) as un5_2,
-	(SUM(un6_1)/{handle_n(n,"c1")}) as un6_1,
-	(SUM(un6_2)/{handle_n(n,"c1")}) as un6_2,
-	(SUM(un8)/{handle_n(n,"c1")}) as un8,
-	(SUM(un9)/{handle_n(n,"c1")}) as un9,
-	(SUM(unspecified)/{handle_n(n,"c1")}) as unspecified,
-	(SUM(multiple)/{handle_n(n,"c1")}) as multiple,
+    {f"(SUM(un1)/{handle_n(n,'c1')}) as un1," if u == None or u=='1' else "0 as un1,"}
+    {f"(SUM(un3)/{handle_n(n,'c1')}) as un3," if u == None or u=='3' else "0 as un3,"}
+    {f"(SUM(un4_1)/{handle_n(n,'c1')}) as un4_1," if u == None or u=='4_1' else "0 as un4_1,"}
+    {f"(SUM(un4_2)/{handle_n(n,'c1')}) as un4_2," if u == None or u=='4_2' else "0 as un4_2,"}
+    {f"(SUM(un4_3)/{handle_n(n,'c1')}) as un4_3," if u == None or u=='4_3' else "0 as un4_3,"}
+    {f"(SUM(un5_1)/{handle_n(n,'c1')}) as un5_1," if u == None or u=='5_1' else "0 as un5_1,"}
+    {f"(SUM(un5_2)/{handle_n(n,'c1')}) as un5_2," if u == None or u=='5_2' else "0 as un5_2,"}
+    {f"(SUM(un6_1)/{handle_n(n,'c1')}) as un6_1," if u == None or u=='6_1' else "0 as un6_1,"}
+    {f"(SUM(un6_2)/{handle_n(n,'c1')}) as un6_2," if u == None or u=='6_2' else "0 as un6_2,"}
+    {f"(SUM(un8)/{handle_n(n,'c1')}) as un8," if u == None or u=='8' else "0 as un8,"}
+    {f"(SUM(un9)/{handle_n(n,'c1')}) as un9," if u == None or u=='9' else "0 as un9,"}
+    {f"(SUM(unspecified)/{handle_n(n,'c1')}) as unspecified," if u == None or u=='unspecified' else "0 as unspecified,"}
+    {f"(SUM(multiple)/{handle_n(n,'c1')}) as multiple," if u == None or u=='multiple' else "0 as multiple,"}
 	{f"c1.{l}_code" if l!="country" else "c1.code"} as origin
     {f"" if points else ", " + handle_name(l,"code","c2") + " as destination" }
 	
@@ -112,9 +112,9 @@ group by
         """
 
 
-def unidirect_query(y, s, n, l):
+def unidirect_query(y, s, n, l, u):
     return f"""
-    {handle_l( y=y, n=n, l=l, points = False)},
+    {handle_l( y=y, n=n, l=l, points = False, u=u)},
 
      bidirect as (
 		select
@@ -175,9 +175,9 @@ where (t1.origin, t1.destination) not in (select origin, destination from bidire
     """
 
 
-def bidirect_query(y, s, n, l):
+def bidirect_query(y, s, n, l, u):
     return f"""
-    {handle_l(y=y, n=n, l=l, points=False)},
+    {handle_l(y=y, n=n, l=l, points=False, u=u)},
 bidirect as (
 		select
 			t1.origin,
@@ -229,24 +229,24 @@ bidirect as (
     """
 
 
-def points_query(y, s, n, l):
+def points_query(y, s, n, l, u):
     beginning = f"""
     
         with t1 as (
 select distinct
-        (SUM(un1)/{handle_n(n,"c1")}) as un1,
-        (SUM(un3)/{handle_n(n,"c1")}) as un3,
-        (SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
-        (SUM(un4_2)/{handle_n(n,"c1")}) as un4_2,
-        (SUM(un4_3)/{handle_n(n,"c1")}) as un4_3,
-        (SUM(un5_1)/{handle_n(n,"c1")}) as un5_1,
-        (SUM(un5_2)/{handle_n(n,"c1")}) as un5_2,
-        (SUM(un6_1)/{handle_n(n,"c1")}) as un6_1,
-        (SUM(un6_2)/{handle_n(n,"c1")}) as un6_2,
-        (SUM(un8)/{handle_n(n,"c1")}) as un8,
-        (SUM(un9)/{handle_n(n,"c1")}) as un9,
-        (SUM(unspecified)/{handle_n(n,"c1")}) as unspecified,
-        (SUM(multiple)/{handle_n(n,"c1")}) as multiple,
+        {f"(SUM(un1)/{handle_n(n,'c1')}) as un1," if u == None or u=='1' else "0 as un1,"}
+        {f"(SUM(un3)/{handle_n(n,'c1')}) as un3," if u == None or u=='3' else "0 as un3,"}
+        {f"(SUM(un4_1)/{handle_n(n,'c1')}) as un4_1," if u == None or u=='4_1' else "0 as un4_1,"}
+        {f"(SUM(un4_2)/{handle_n(n,'c1')}) as un4_2," if u == None or u=='4_2' else "0 as un4_2,"}
+        {f"(SUM(un4_3)/{handle_n(n,'c1')}) as un4_3," if u == None or u=='4_3' else "0 as un4_3,"}
+        {f"(SUM(un5_1)/{handle_n(n,'c1')}) as un5_1," if u == None or u=='5_1' else "0 as un5_1,"}
+        {f"(SUM(un5_2)/{handle_n(n,'c1')}) as un5_2," if u == None or u=='5_2' else "0 as un5_2,"}
+        {f"(SUM(un6_1)/{handle_n(n,'c1')}) as un6_1," if u == None or u=='6_1' else "0 as un6_1,"}
+        {f"(SUM(un6_2)/{handle_n(n,'c1')}) as un6_2," if u == None or u=='6_2' else "0 as un6_2,"}
+        {f"(SUM(un8)/{handle_n(n,'c1')}) as un8," if u == None or u=='8' else "0 as un8,"}
+        {f"(SUM(un9)/{handle_n(n,'c1')}) as un9," if u == None or u=='9' else "0 as un9,"}
+        {f"(SUM(unspecified)/{handle_n(n,'c1')}) as unspecified," if u == None or u=='unspecified' else "0 as unspecified,"}
+        {f"(SUM(multiple)/{handle_n(n,'c1')}) as multiple," if u == None or u=='multiple' else "0 as multiple,"}
         {handle_name(l, "code","c1")} as origin,
         SUM(un1) as abs_un1,
         SUM(un3) as abs_un3,
@@ -285,19 +285,19 @@ group by
  """     
     imports = f""", imports as(
 		select 
-		(SUM(un1)/{handle_n(n,"c1")}) as un1,
-		(SUM(un3)/{handle_n(n,"c1")}) as un3,
-		(SUM(un4_1)/{handle_n(n,"c1")}) as un4_1,
-		(SUM(un4_2)/{handle_n(n,"c1")}) as un4_2,
-		(SUM(un4_3)/{handle_n(n,"c1")}) as un4_3,
-		(SUM(un5_1)/{handle_n(n,"c1")}) as un5_1,
-		(SUM(un5_2)/{handle_n(n,"c1")}) as un5_2,
-		(SUM(un6_1)/{handle_n(n,"c1")}) as un6_1,
-		(SUM(un6_2)/{handle_n(n,"c1")}) as un6_2,
-		(SUM(un8)/{handle_n(n,"c1")}) as un8,
-		(SUM(un9)/{handle_n(n,"c1")}) as un9,
-		(SUM(unspecified)/{handle_n(n,"c1")}) as unspecified,
-		(SUM(multiple)/{handle_n(n,"c1")}) as multiple,
+		{f"(SUM(un1)/{handle_n(n,'c1')}) as un1" if u == None or u=='1' else "0 as un1"},
+        {f"(SUM(un3)/{handle_n(n,'c1')}) as un3" if u == None or u=='3' else "0 as un3"},
+        {f"(SUM(un4_1)/{handle_n(n,'c1')}) as un4_1" if u == None or u=='4_1' else "0 as un4_1"},
+        {f"(SUM(un4_2)/{handle_n(n,'c1')}) as un4_2" if u == None or u=='4_2' else "0 as un4_2"},
+        {f"(SUM(un4_3)/{handle_n(n,'c1')}) as un4_3" if u == None or u=='4_3' else "0 as un4_3"},
+        {f"(SUM(un5_1)/{handle_n(n,'c1')}) as un5_1" if u == None or u=='5_1' else "0 as un5_1"},
+        {f"(SUM(un5_2)/{handle_n(n,'c1')}) as un5_2" if u == None or u=='5_2' else "0 as un5_2"},
+        {f"(SUM(un6_1)/{handle_n(n,'c1')}) as un6_1" if u == None or u=='6_1' else "0 as un6_1"},
+        {f"(SUM(un6_2)/{handle_n(n,'c1')}) as un6_2" if u == None or u=='6_2' else "0 as un6_2"},
+        {f"(SUM(un8)/{handle_n(n,'c1')}) as un8" if u == None or u=='8' else "0 as un8"},
+        {f"(SUM(un9)/{handle_n(n,'c1')}) as un9" if u == None or u=='9' else "0 as un9"},
+        {f"(SUM(unspecified)/{handle_n(n,'c1')}) as unspecified" if u == None or u=='unspecified' else "0 as unspecified"},
+        {f"(SUM(multiple)/{handle_n(n,'c1')}) as multiple" if u == None or u=='multiple' else "0 as multiple"},
 		{handle_name(l, "code","c1")} as origin,
         SUM(un1) as abs_un1,
 		SUM(un3) as abs_un3,

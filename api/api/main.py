@@ -41,8 +41,9 @@ def get_flows(s: Union[str, int, None] = Query(default=None, max_length=3),
               y: List[int] = Query(None), 
               n: Union[bool, None] = Query(default=False), 
               l: Union[str, None] = Query(default='region', max_length=10, regex=lvl),
+              u: Union[str, None] = Query(default=None),
               db: Session = Depends(get_db)):
-    results = query_flows(db, s=s, y=y, n=n, l=l)
+    results = query_flows(db, s=s, y=y, n=n, l=l, u=u)
     return ORJSONResponse(results)
 
 @app.get("/points", response_class=ORJSONResponse)
@@ -50,8 +51,9 @@ def get_points(s: Union[str, int, None] = Query(default=None, max_length=3),
                y: List[int] = Query(None), 
                n: Union[bool, None] = Query(default=False),
                l: Union[str, None] = Query(default='region', max_length=10, regex=lvl),
+               u: Union[str, None] = Query(default=None),
                db: Session = Depends(get_db)):
-    results = query_points(db, s=s, y=y, n=n, l=l)
+    results = query_points(db, s=s, y=y, n=n, l=l, u=u)
     return ORJSONResponse(results)
 
 @app.get("/countries", response_class=ORJSONResponse)
