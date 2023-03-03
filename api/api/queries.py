@@ -173,7 +173,7 @@ where (t1.origin, t1.destination) not in (select origin, destination from bidire
         
         
     {handle_s(s)}
-   {'where' if s==None else 'and'} not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0);
+   {'where' if s==None else 'and'} not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0 and unspecified=0 and multiple=0);
     """
 
 
@@ -227,7 +227,7 @@ bidirect as (
     from
         bidirect
     {handle_s(s)}
-    {'where' if s==None else 'and'} not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0);
+    {'where' if s==None else 'and'} not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0 and unspecified=0 and multiple=0);
     """
 
 
@@ -371,7 +371,7 @@ select
     )
 from
     final
-    where not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0)
+    where not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0 and unspecified=0 and multiple=0)
 """
 
     if s is None:
