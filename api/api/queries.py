@@ -100,8 +100,8 @@ select
 	{f'(SUM(un6_2){"/(select population from countries where code = origin)" if n else ""})' if u == None or '6_2' in u else "0"} as un6_2,
 	{f'(SUM(un8){"/(select population from countries where code = origin)" if n else ""})' if u == None or '8' in u else "0"} as un8,
 	{f'(SUM(un9){"/(select population from countries where code = origin)" if n else ""})' if u == None or '9' in u else "0"} as un9,
-	{f'(SUM(unspecified){"/(select population from countries where code = origin)" if n else ""})' if u == None or u=='1' else "0"} as unspecified,
-	{f'(SUM(multiple){"/(select population from countries where code = origin)" if n else ""})' if u == None or u=='1' else "0"} as multiple
+	{f'(SUM(unspecified){"/(select population from countries where code = origin)" if n else ""})' if u == None or 'unspecified' in u else "0"} as unspecified,
+	{f'(SUM(multiple){"/(select population from countries where code = origin)" if n else ""})' if u == None or 'multiple' in u else "0"} as multiple
 from
        exports
 {handle_y(y)}
@@ -371,7 +371,7 @@ select
     )
 from
     final
-    where not (un10 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0)
+    where not (un1=0 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0)
 """
 
     if s is None:
