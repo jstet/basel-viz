@@ -4,25 +4,15 @@
     import Slider from "@bulatdashiev/svelte-slider";
     import { palette } from "$lib/data/palette";
     import Modal from "$lib/components/Modal.svelte";
-    import UN_class_1 from "$lib/svg/UN_class_1.svelte";
-    import UN_class_3 from "$lib/svg/UN_class_3.svelte";
-    import UN_class_4_1 from "$lib/svg/UN_class_4_1.svelte";
-    import UN_class_4_2 from "$lib/svg/UN_class_4_2.svelte";
-    import UN_class_4_3 from "$lib/svg/UN_class_4_3.svelte";
-    import UN_class_5_1 from "$lib/svg/UN_class_5_1.svelte";
-    import UN_class_5_2 from "$lib/svg/UN_class_5_2.svelte";
-    import UN_class_6_1 from "$lib/svg/UN_class_6_1.svelte";
-    import UN_class_6_2 from "$lib/svg/UN_class_6_2.svelte";
-    import UN_class_8 from "$lib/svg/UN_class_8.svelte";
-    import UN_class_9 from "$lib/svg/UN_class_9.svelte";
+    import {UN_class_1, UN_class_3, UN_class_4_1, UN_class_4_2, UN_class_4_3, UN_class_5_1, UN_class_5_2, UN_class_6_1, UN_class_6_2, UN_class_8, UN_class_9} from "$lib/svg";
 
     export let select_options_in = [];
 
-    const levels = ["country", "sub_region", "region"];
-    const levels_label = ["Country", "Subregion", "Region"];
-    let level = [3, 3];
+    const levels = ["country", "sub_region", "region", "hdi"];
+    const levels_label = ["Country", "Subregion", "Region", "HDI"];
+    let level = [3, 4];
     if ($page.url.searchParams.get("level") !== null){
-        level = [levels.indexOf($page.url.searchParams.get("level"))+1,3]
+        level = [levels.indexOf($page.url.searchParams.get("level"))+1,4]
     }
     
     let selected = "all";
@@ -99,7 +89,7 @@
         <div class="pb-3 flex items-center">
             <p class="">Level:</p>
             <div class=" px-8 w-3/4">
-                <Slider min={1} max={3} step="1" bind:value={level} on:input={()=>{selected="all"}}>
+                <Slider min={1} max={4} step="1" bind:value={level} on:input={()=>{selected="all"}}>
                     <div slot="left" class="bg-white">
                         <span
                             class="mb-2 border rounded-full py-1 px-3 "
