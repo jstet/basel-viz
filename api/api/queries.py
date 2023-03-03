@@ -371,7 +371,7 @@ select
     )
 from
     final
-    where not (un1==0 and un3==0 and un4_1==0 and un4_2==0 and un4_3==0 and un5_1==0 and un5_2==0 and un6_1==0 and un6_2==0 and un8==0 and un9==0)
+    where not (un10 and un3=0 and un4_1=0 and un4_2=0 and un4_3=0 and un5_1=0 and un5_2=0 and un6_1=0 and un6_2=0 and un8=0 and un9=0)
 """
 
     if s is None:
