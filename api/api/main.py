@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 lvl = "hdi|region|sub_region|country"
-
+categories = "1|3|4_1|4_2|4_3|5_1|5_2|6_1|6_2|8|9|unspecified|multiple"
 # Dependency
 
 
@@ -41,7 +41,7 @@ def get_flows(s: Union[str, int, None] = Query(default=None, max_length=3),
               y: List[int] = Query(None), 
               n: Union[bool, None] = Query(default=False), 
               l: Union[str, None] = Query(default='region', max_length=10, regex=lvl),
-              u: Union[str, None] = Query(default=None),
+              u: Union[str, None] = Query(default=None, regex=categories),
               db: Session = Depends(get_db)):
     results = query_flows(db, s=s, y=y, n=n, l=l, u=u)
     return ORJSONResponse(results)
@@ -51,7 +51,7 @@ def get_points(s: Union[str, int, None] = Query(default=None, max_length=3),
                y: List[int] = Query(None), 
                n: Union[bool, None] = Query(default=False),
                l: Union[str, None] = Query(default='region', max_length=10, regex=lvl),
-               u: Union[str, None] = Query(default=None),
+               u: Union[str, None] = Query(default=None, regex=categories),
                db: Session = Depends(get_db)):
     results = query_points(db, s=s, y=y, n=n, l=l, u=u)
     return ORJSONResponse(results)

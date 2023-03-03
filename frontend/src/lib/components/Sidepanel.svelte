@@ -3,43 +3,59 @@
     import { page } from "$app/stores";
     import Slider from "@bulatdashiev/svelte-slider";
     import { palette } from "$lib/data/palette";
-    import Modal from "$lib/components/Modal.svelte";
-    import {UN_class_1, UN_class_3, UN_class_4_1, UN_class_4_2, UN_class_4_3, UN_class_5_1, UN_class_5_2, UN_class_6_1, UN_class_6_2, UN_class_8, UN_class_9} from "$lib/svg";
+    import { Modal, ModalContent } from "$lib/components";
+    import {
+        UN_class_1,
+        UN_class_3,
+        UN_class_4_1,
+        UN_class_4_2,
+        UN_class_4_3,
+        UN_class_5_1,
+        UN_class_5_2,
+        UN_class_6_1,
+        UN_class_6_2,
+        UN_class_8,
+        UN_class_9,
+    } from "$lib/svg";
 
     export let select_options_in = [];
 
     const levels = ["country", "sub_region", "region", "hdi"];
     const levels_label = ["Country", "Subregion", "Region", "HDI"];
     let level = [3, 4];
-    if ($page.url.searchParams.get("level") !== null){
-        level = [levels.indexOf($page.url.searchParams.get("level"))+1,4]
+    if ($page.url.searchParams.get("level") !== null) {
+        level = [levels.indexOf($page.url.searchParams.get("level")) + 1, 4];
     }
-    
+
     let selected = "all";
-    if (level[0] == 1){
-        selected = "af"
+    if (level[0] == 1) {
+        selected = "af";
     }
-    if ($page.url.searchParams.get("selected") !== null){
+    if ($page.url.searchParams.get("selected") !== null) {
         selected = $page.url.searchParams.get("selected");
     }
-    
 
     let years = [2001, 2021];
-    if ($page.url.searchParams.get("years") !== null){
-        let y = JSON.parse(`[${$page.url.searchParams.get("years")}]`)
-        years[0] = y[0]
-        years[1] = y[1]
+    if ($page.url.searchParams.get("years") !== null) {
+        let y = JSON.parse(`[${$page.url.searchParams.get("years")}]`);
+        years[0] = y[0];
+        years[1] = y[1];
     }
 
-    let normalize = false;
-    if ($page.url.searchParams.get("normalize") !== null){
-       normalize = JSON.parse($page.url.searchParams.get("normalize"))
+    let per_capita = false;
+    if ($page.url.searchParams.get("per_capita") !== null) {
+        per_capita = JSON.parse($page.url.searchParams.get("per_capita"));
     }
-    
-    
 
-    let select_options = []
-    $: select_options = select_options_in[level[0]-1]
+    let select_options = [];
+    $: select_options = select_options_in[level[0] - 1];
+
+    let category = "all";
+    if ($page.url.searchParams.get("category") !== null) {
+        category = $page.url.searchParams.get("category");
+    }
+
+    $: console.log(category)
 
     let range;
     let showModal = false;
@@ -47,13 +63,12 @@
     async function set_url() {
         const url = $page.url.searchParams;
         url.set("selected", selected);
-        url.set("normalize", normalize);
+        url.set("per_capita", per_capita);
         url.set("years", years);
-        url.set("level", levels[level[0]-1]);
+        url.set("level", levels[level[0] - 1]);
+        url.set("category", category);
         await goto(`?${url}`, { invalidateAll: true });
     }
-
-
 
     const components = {
         UN_class_1,
@@ -92,11 +107,20 @@
         <div class="pb-3 flex items-center">
             <p class="">Level:</p>
             <div class=" px-8 w-3/4">
-                <Slider min={1} max={4} step="1" bind:value={level} on:input={()=>{level[0] != 1 ? selected="all" : selected="af"}}>
+                <Slider
+                    min={1}
+                    max={4}
+                    step="1"
+                    bind:value={level}
+                    on:input={() => {
+                        level[0] != 1 ? (selected = "all") : (selected = "af");
+                    }}
+                >
                     <div slot="left" class="bg-white">
                         <span
                             class="mb-2 border rounded-full py-1 px-3 "
-                            style="font-size: 14px;">{levels_label[level[0]-1]}</span
+                            style="font-size: 14px;"
+                            >{levels_label[level[0] - 1]}</span
                         >
                     </div>
                 </Slider>
@@ -110,7 +134,6 @@
                 name="country"
                 id="select"
                 bind:value={selected}
-
             >
                 <option selected value="all">All</option>
                 {#if select_options}
@@ -138,10 +161,35 @@
                 </Slider>
             </div>
         </div>
-        <!-- Normalize Checkbox -->
+        <!-- Categories Dropdown-->
+        <div class="pb-3">
+            <label class="pr-3" for="select">Category:</label>
+            <select
+                class="px-3 w-2/4"
+                name="category"
+                id="category"
+                bind:value={category}
+            >
+                <option selected value="all">All</option>
+                <option selected value="1">Class 1</option>
+                <option selected value="3">Class 3</option>
+                <option selected value="4_1">Class 4.1</option>
+                <option selected value="4_2">Class 4.2</option>
+                <option selected value="4_3">Class 4.3</option>
+                <option selected value="5_1">Class 5.1</option>
+                <option selected value="5_2">Class 5.2</option>
+                <option selected value="6_1">Class 6.1</option>
+                <option selected value="6_2">Class 6.2</option>
+                <option selected value="8">Class 8</option>
+                <option selected value="9">Class 9</option>
+                <option selected value="unspecified">Class Unknown</option>
+                <option selected value="multiple">Multiple Classes</option>
+            </select>
+        </div>
+        <!-- per_capita Checkbox -->
         <div class="pb-3">
             <label>
-                <input type="checkbox" bind:checked={normalize} />
+                <input type="checkbox" bind:checked={per_capita} />
                 Per capita
             </label>
         </div>
@@ -189,35 +237,5 @@
 </div>
 <!-- Modal Content -->
 <Modal bind:showModal>
-    <h2 class="font-bold text-3xl pb-4">Basel Viz</h2>
-
-    <h3 class="pb-3">Article 13.3 of the Basel Convention states:</h3>
-    <blockquote class="italic">
-        <p class="pb-1">
-            "The Parties, [...] shall transmit, [...] before the end of each
-            calendar year, a report on the previous calendar year, containing
-            the following information:
-        </p>
-
-        <p class="pb-1 pl-4">
-            (b) Information regarding transboundary movements of hazardous
-            wastes or other wastes in which they have been involved, including:
-        </p>
-        <p class="pb-3 pl-10">
-            (ii) The amount of hazardous wastes and other wastes imported their
-            category, characteristics, origin, and disposal methods;"
-        </p>
-    </blockquote>
-    <p class="pb-10">
-        The data contained in these reports is publically available and was
-        scraped and aggregated for this visualization.
-    </p>
-    <p class="pb-10">
-        <a
-            href="http://www.basel.int/"
-            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-            >Read more</a
-        >
-    </p>
-    <p /></Modal
->
+    <ModalContent />
+</Modal>

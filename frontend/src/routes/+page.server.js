@@ -7,13 +7,14 @@ export async function load({ url }) {
     let selected = url.searchParams.get("selected")
     let level = url.searchParams.get("level")
     let years = url.searchParams.get("years")
-    let normalize = url.searchParams.get("normalize")
+    let per_capita = url.searchParams.get("per_capita")
+    let category = url.searchParams.get("category")
 
     let flows_url = API_URL + "/flows?";
     let points_url = API_URL + "/points?";
     let coords_url = API_URL + "/coords?";
     let no_exports_url = API_URL + "/no_exports?";
-
+   
     if (selected) {
         if (selected == "all") {
         }
@@ -36,11 +37,17 @@ export async function load({ url }) {
         coords_url = coords_url + `l=${level}&`
         no_exports_url = no_exports_url + `l=${level}&`
     }
-    if (normalize) {
-        flows_url = flows_url + `n=${normalize}&`
-        points_url = points_url + `n=${normalize}&`
-        coords_url = coords_url + `n=${normalize}&`
-        no_exports_url = no_exports_url + `n=${normalize}&`
+    if (per_capita) {
+        flows_url = flows_url + `n=${per_capita}&`
+        points_url = points_url + `n=${per_capita}&`
+        coords_url = coords_url + `n=${per_capita}&`
+        no_exports_url = no_exports_url + `n=${per_capita}&`
+    }
+    if (category) {
+        flows_url = flows_url + `u=${category}&`
+        points_url = points_url + `u=${category}&`
+        coords_url = coords_url + `u=${category}&`
+        no_exports_url = no_exports_url + `u=${category}&`
     }
 
     console.log(flows_url)
