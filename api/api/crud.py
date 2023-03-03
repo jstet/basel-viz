@@ -19,11 +19,9 @@ def to_obj(x):
     return obj
 
 def query_flows(db: Session, s, y, n, l, u):
+    print(unidirect_query(s=s, y=y, n=n, l=l, u=u))
     bidirectional = to_lst(db.execute(text(bidirect_query(s=s, y=y, n=n, l=l, u=u))))
     unidirectional = to_lst(db.execute(text(unidirect_query(s=s, y=y, n=n, l=l, u=u))))    
-    print(unidirect_query(s=s, y=y, n=n, l=l, u=u))
-    print("uni", len(unidirectional))
-    print(len(bidirectional))
     return {"bidirectional": bidirectional, "unidirectional": unidirectional}
 
 
@@ -41,7 +39,7 @@ def  query_coords(db:Session, l,d):
     coords = to_lst(db.execute(text(coords_query(l,d))))
     return to_obj(coords)
 
-def  query_no_exports(db:Session, l, y, s):
-    print(no_exports_query(l, y,s))
-    coords = to_lst(db.execute(text(no_exports_query(l, y,s))))
+def  query_no_exports(db:Session, l, y, s, u):
+    print(no_exports_query(l, y,s, u))
+    coords = to_lst(db.execute(text(no_exports_query(l, y,s, u))))
     return coords

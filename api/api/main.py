@@ -41,7 +41,7 @@ def get_flows(s: Union[str, int, None] = Query(default=None, max_length=3),
               y: List[int] = Query(None), 
               n: Union[bool, None] = Query(default=False), 
               l: Union[str, None] = Query(default='region', max_length=10, regex=lvl),
-              u: Union[str, None] = Query(default=None, regex=categories),
+              u: List[str] = Query(default=None, regex=categories),
               db: Session = Depends(get_db)):
     results = query_flows(db, s=s, y=y, n=n, l=l, u=u)
     return ORJSONResponse(results)
@@ -51,7 +51,7 @@ def get_points(s: Union[str, int, None] = Query(default=None, max_length=3),
                y: List[int] = Query(None), 
                n: Union[bool, None] = Query(default=False),
                l: Union[str, None] = Query(default='region', max_length=10, regex=lvl),
-               u: Union[str, None] = Query(default=None, regex=categories),
+               u: List[str] = Query(default=None, regex=categories),
                db: Session = Depends(get_db)):
     results = query_points(db, s=s, y=y, n=n, l=l, u=u)
     return ORJSONResponse(results)
@@ -68,7 +68,11 @@ def get_countries(db: Session = Depends(get_db),  l: Union[str, None] = Query(de
     return ORJSONResponse(results)
 
 @app.get("/no_exports", response_class=ORJSONResponse)
-def get_noExports(db: Session = Depends(get_db),  s: Union[str, int, None] = Query(default=None, max_length=3), l: Union[str, None] = Query(default='region', max_length=10),  y: List[int] = Query(None)):
-    results = query_no_exports(db, l, y,s)
+def get_noExports(db: Session = Depends(get_db),  
+                  s: Union[str, int, None] = Query(default=None, max_length=3), 
+                  l: Union[str, None] = Query(default='region', max_length=10),  
+                  y: List[int] = Query(None),
+                  u: List[str] = Query(default=None, regex=categories)):
+    results = query_no_exports(db, l, y,s, u)
     return ORJSONResponse(results)
 
