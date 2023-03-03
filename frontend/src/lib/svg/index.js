@@ -9,3 +9,4 @@ export { default as UN_class_6_1 } from "$lib/svg/UN_class_6_1.svelte";
 export { default as UN_class_6_2 } from "$lib/svg/UN_class_6_2.svelte";
 export { default as UN_class_8 } from "$lib/svg/UN_class_8.svelte";
 export { default as UN_class_9 } from "$lib/svg/UN_class_9.svelte";
+export { default as Info } from "$lib/svg/Info.svelte";

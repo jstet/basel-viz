@@ -26,10 +26,10 @@
 </script>
 
 <div class="flex w-screen h-screen">
-    <div class="w-1/5 border-r border-neutral-400 z-10 overflow-scroll">
+    <div class="2xl:w-3/12 xl:w-4/12 w-2/5 border-r border-neutral-400 z-10 overflow-scroll">
         <Sidepanel select_options_in={select_options} />
     </div>
-    <div class="w-4/5 h-full relative">
+    <div class="2xl:w-9/12 xl:w-8/12 w-3/5 h-full relative">
         <TabWrapper>
             <TabContentItem id={1} {activeTabValue}>
                 <Map {flows} {points} {coords} {no_exports} />

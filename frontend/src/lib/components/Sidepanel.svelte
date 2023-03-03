@@ -3,7 +3,7 @@
     import { page } from "$app/stores";
     import Slider from "@bulatdashiev/svelte-slider";
     import { palette } from "$lib/data/palette";
-    import { Modal, ModalContent } from "$lib/components";
+    import { Modal, ModalContent, Tooltip } from "$lib/components";
     import {
         UN_class_1,
         UN_class_3,
@@ -15,10 +15,13 @@
         UN_class_6_1,
         UN_class_6_2,
         UN_class_8,
-        UN_class_9,
+        UN_class_9
+        
     } from "$lib/svg";
 
     export let select_options_in = [];
+
+    const svg_w = 55;
 
     const levels = ["country", "sub_region", "region", "hdi"];
     const levels_label = ["Country", "Subregion", "Region", "HDI"];
@@ -104,7 +107,7 @@
     <div class="border-b mb-3">
         <h1 class="font-bold text-lg pb-4">Filter Options</h1>
         <!-- Level Slider-->
-        <div class="pb-3 flex items-center">
+        <div class="pb-4 flex items-center">
             <p class="">Level:</p>
             <div class=" px-8 w-3/4">
                 <Slider
@@ -127,7 +130,7 @@
             </div>
         </div>
         <!-- Dropdown -->
-        <div class="pb-3">
+        <div class="pb-4">
             <label class="pr-3" for="select">Select:</label>
             <select
                 class="px-3 w-2/4"
@@ -144,7 +147,7 @@
             </select>
         </div>
         <!-- Time Range Slider-->
-        <div class="pb-3">
+        <div class="pb-4">
             <p class="pb-3">Time Range:</p>
             <div class=" px-6">
                 <Slider min={2001} max={2021} step="1" bind:value={years} range>
@@ -162,7 +165,7 @@
             </div>
         </div>
         <!-- Categories Dropdown-->
-        <div class="pb-3">
+        <div class="pb-4">
             <label class="pr-3" for="select">Category:</label>
             <select
                 class="px-3 w-2/4"
@@ -187,37 +190,41 @@
             </select>
         </div>
         <!-- per_capita Checkbox -->
-        <div class="pb-3">
-            <label>
-                <input type="checkbox" bind:checked={per_capita} />
-                Per capita
+        <div class="pb-4 flex items-center">
+            <label class="pr-2">
+                <input class="mr-1" type="checkbox" bind:checked={per_capita} />
+                <span>Per capita</span>
             </label>
+            <Tooltip>Amount divided by population</Tooltip>
         </div>
+        
         <button
             class="border rounded py-1 px-3 bg-neutral-200 mb-6"
             on:click={set_url}>Submit</button
         >
+
     </div>
-    <div class="border-b">
-        <h1 class="font-bold text-lg pb-4">Legend</h1>
-        <div class="grid grid-cols-2 gap-5 mb-3">
+    <div class="">
+        <h1 class="font-bold text-lg pb-3">Legend</h1>
+        <h2 class="font-medium text-base pb-6">Waste Categories:</h2>
+        <div class="grid grid-cols-2 mb-3 gap-y-5 gap-x-1">
             {#each palette.description as description, i}
                 <div class="flex space-x-4 text-sm items-center">
                     <div
-                        class="h-16 w-16"
-                        style="background-color: {palette.colors[i]};"
+                        class=""
+                        style="background-color: {palette.colors[i]}; min-height: {svg_w}px; min-width: {svg_w}px;"
                     >
                         {#if palette.svgs[i] != ""}
                             <svelte:component
                                 this={components[`UN_class_${palette.svgs[i]}`]}
-                                width={64}
-                                height={64}
+                                width={svg_w}
+                                height={svg_w}
                             />
                         {:else}{/if}
                     </div>
                     {#if palette.class_written[i] != ""}
                         <span
-                            ><span class="font-bold"
+                            ><span class="font-semibold"
                                 >{palette.class_written[i]}</span
                             >
                             : <br />
@@ -230,10 +237,8 @@
                 </div>
             {/each}
         </div>
+
     </div>
-    <p class="font-light absolute bottom-0 pb-3">
-        Created by Xenia Saar, Freya Moßig and Jonas Stettner
-    </p>
 </div>
 <!-- Modal Content -->
 <Modal bind:showModal>

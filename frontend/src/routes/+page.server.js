@@ -44,10 +44,14 @@ export async function load({ url }) {
         no_exports_url = no_exports_url + `n=${per_capita}&`
     }
     if (category) {
+        if (category == "all") {
+        }
+        else{
         flows_url = flows_url + `u=${category}&`
         points_url = points_url + `u=${category}&`
         coords_url = coords_url + `u=${category}&`
         no_exports_url = no_exports_url + `u=${category}&`
+        }
     }
 
     console.log(flows_url)

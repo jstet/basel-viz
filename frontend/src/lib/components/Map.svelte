@@ -351,6 +351,7 @@
 
     function onMount(container) {
         map1 = createMap(container);
+        map1.attributionControl.setPosition('topright')
         svg({clickable: true}).addTo(map1);
         map1.on("zoomanim", (e) => {
             createLinesBetweenCountries(map1, e.zoom, e.center);
