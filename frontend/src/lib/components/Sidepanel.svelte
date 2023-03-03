@@ -16,6 +16,9 @@
     }
     
     let selected = "all";
+    if (level[0] == 1){
+        selected = "af"
+    }
     if ($page.url.searchParams.get("selected") !== null){
         selected = $page.url.searchParams.get("selected");
     }
@@ -89,7 +92,7 @@
         <div class="pb-3 flex items-center">
             <p class="">Level:</p>
             <div class=" px-8 w-3/4">
-                <Slider min={1} max={4} step="1" bind:value={level} on:input={()=>{selected="all"}}>
+                <Slider min={1} max={4} step="1" bind:value={level} on:input={()=>{level[0] != 1 ? selected="all" : selected="af"}}>
                     <div slot="left" class="bg-white">
                         <span
                             class="mb-2 border rounded-full py-1 px-3 "
