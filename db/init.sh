@@ -40,11 +40,15 @@ CSV HEADER DELIMITER ',';
     sub_region_name VARCHAR(50),
     sub_region_lat FLOAT,
     sub_region_lon FLOAT,
+    hdi_code VARCHAR(50),
+    hdi_name VARCHAR(50),
+    hdi_lat FLOAT,
+    hdi_lon FLOAT,
     population INT,
     destination_only BOOLEAN
     );
   
-COPY countries(code,name,lat,lon,region_code,region_name,region_lat,region_lon,sub_region_code,sub_region_name, sub_region_lat, sub_region_lon, population, destination_only)
+COPY countries(code,name,lat,lon,region_code,region_name,region_lat,region_lon,sub_region_code,sub_region_name, sub_region_lat, sub_region_lon, hdi_code, hdi_name, hdi_lat, hdi_lon, population, destination_only)
 FROM '/data/countries.csv'
 CSV HEADER DELIMITER ',';
   

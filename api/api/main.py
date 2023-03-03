@@ -21,7 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-lvl = "region|sub_region|country"
+lvl = "hdi|region|sub_region|country"
 
 # Dependency
 
