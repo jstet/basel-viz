@@ -415,26 +415,115 @@ def handle_y2(y):
 
 def no_exports_query(l, y, s, u):
     return f"""
-    with noExports as (
+    {handle_l2(y=y, n=False, l=l, u=u, points=False)},
+    no_zeros as (
+select
+	*
+from
+	t1
+where
+	not (un1 = 0
+		and un3 = 0
+		and un4_1 = 0
+		and un4_2 = 0
+		and un4_3 = 0
+		and un5_1 = 0
+		and un5_2 = 0
+		and un6_1 = 0
+		and un6_2 = 0
+		and un8 = 0
+		and un9 = 0
+		and unspecified = 0
+		and multiple = 0)
+        ),
+    noExports as (
     
     select distinct {handle_name(l, 'code', 'countries')}, {handle_name(l, 'name', 'countries')}, {handle_name(l, 'lat', 'countries')}, {handle_name(l, 'lon', 'countries')}
-    from exports join countries on exports.destination=countries.code
+    from no_zeros join countries on no_zeros.destination=countries.code
     {"" if y==None else "where " + handle_y2(y)}
     {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
-    {f"exports.origin in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
+    {f"no_zeros.origin in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
     {"" if s==None else 
-    f" union select {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')} from exports as e3 join countries as c3 on e3.origin=c3.code where {handle_name(l, 'code', 'c3')}='{s}' and e3.origin not in (select c4.code from countries as c4 join exports as e4 on e4.origin=c4.code {'' if y==None else 'where ' + handle_y2(y)})"}
+    f" union select {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')} from t1 as e3 join countries as c3 on e3.origin=c3.code where {handle_name(l, 'code', 'c3')}='{s}' and e3.origin not in (select c4.code from countries as c4 join no_zeros as e4 on e4.origin=c4.code {'' if y==None else 'where ' + handle_y2(y)})"}
 
     except
 	
     select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
-    from countries as c join exports as e on e.origin=c.code
+    from countries as c join no_zeros as e on e.origin=c.code
     {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
     {f"e.destination in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
-    {"" if y==None else "and " + handle_y2(y)}
+        {"" if y==None else "and " + handle_y2(y)}
+    
     )
     select json_build_object(
         'origin_code', {handle_name(l, 'code')})
     from noExports
     order by {handle_name(l, 'name')}
     """
+
+
+def handle_l2(y, n, l, points, u, s=""):
+    if l != 'country':
+        return f""" 
+        with t1 as (
+select distinct
+    {f"(SUM(un1)/{handle_n(n,'c1')}) as un1," if u == None or '1' in u else "0 as un1,"}
+    {f"(SUM(un3)/{handle_n(n,'c1')}) as un3," if u == None or '3' in u else "0 as un3,"}
+    {f"(SUM(un4_1)/{handle_n(n,'c1')}) as un4_1," if u == None or '4_1' in u else "0 as un4_1,"}
+    {f"(SUM(un4_2)/{handle_n(n,'c1')}) as un4_2," if u == None or '4_2' in u else "0 as un4_2,"}
+    {f"(SUM(un4_3)/{handle_n(n,'c1')}) as un4_3," if u == None or '4_3' in u else "0 as un4_3,"}
+    {f"(SUM(un5_1)/{handle_n(n,'c1')}) as un5_1," if u == None or '5_1' in u else "0 as un5_1,"}
+    {f"(SUM(un5_2)/{handle_n(n,'c1')}) as un5_2," if u == None or '5_2' in u else "0 as un5_2,"}
+    {f"(SUM(un6_1)/{handle_n(n,'c1')}) as un6_1," if u == None or '6_1' in u else "0 as un6_1,"}
+    {f"(SUM(un6_2)/{handle_n(n,'c1')}) as un6_2," if u == None or '6_2' in u else "0 as un6_2,"}
+    {f"(SUM(un8)/{handle_n(n,'c1')}) as un8," if u == None or '8' in u else "0 as un8,"}
+    {f"(SUM(un9)/{handle_n(n,'c1')}) as un9," if u == None or '9' in u else "0 as un9,"}
+    {f"(SUM(unspecified)/{handle_n(n,'c1')}) as unspecified," if u == None or 'unspecified' in u else "0 as unspecified,"}
+    {f"(SUM(multiple)/{handle_n(n,'c1')}) as multiple," if u == None or 'multiple' in u else "0 as multiple,"}
+	{f"c1.{l}_code" if l!="country" else "c1.code"} as origin
+    {f"" if points else ", " + handle_name(l,"code","c2") + " as destination" }
+    {f"" if y==None else ", year as year" }
+	
+from
+	exports as ex
+	inner join countries as c1 on
+	ex.origin =  c1.code
+    {"" if points else "inner join countries as c2 on ex.destination = c2.code"}
+
+{handle_where(l=l, y=y, points=points, table="c1", type="code")}
+
+group by
+	{handle_name(l, "code", "c1")}
+    {"" if points else ", " + handle_name(l, "code", "c2")}
+    {'' if y==None else ", year"}
+        )
+            """
+    else:
+        return f"""
+    with t1 as (
+select
+	origin,
+    {"" if points else "destination,"}
+	{f'(SUM(un1){"/(select population from countries where code = origin)" if n else ""})' if u == None or '1' in u else "0"} as un1,
+	{f'(SUM(un3){"/(select population from countries where code = origin)" if n else ""})' if u == None or '3' in u else "0"} as un3,
+	{f'(SUM(un4_1){"/(select population from countries where code = origin)" if n else ""})' if u == None or '4_1' in u else "0"} as un4_1,
+	{f'(SUM(un4_2){"/(select population from countries where code = origin)" if n else ""})' if u == None or '4_2' in u else "0"} as un4_2,
+	{f'(SUM(un4_3){"/(select population from countries where code = origin)" if n else ""})' if u == None or '4_3' in u else "0"} as un4_3,
+	{f'(SUM(un5_1){"/(select population from countries where code = origin)" if n else ""})' if u == None or '5_1' in u else "0"} as un5_1,
+	{f'(SUM(un5_2){"/(select population from countries where code = origin)" if n else ""})' if u == None or '5_2' in u else "0"} as un5_2,
+	{f'(SUM(un6_1){"/(select population from countries where code = origin)" if n else ""})' if u == None or '6_1' in u else "0"} as un6_1,
+	{f'(SUM(un6_2){"/(select population from countries where code = origin)" if n else ""})' if u == None or '6_2' in u else "0"} as un6_2,
+	{f'(SUM(un8){"/(select population from countries where code = origin)" if n else ""})' if u == None or '8' in u else "0"} as un8,
+	{f'(SUM(un9){"/(select population from countries where code = origin)" if n else ""})' if u == None or '9' in u else "0"} as un9,
+	{f'(SUM(unspecified){"/(select population from countries where code = origin)" if n else ""})' if u == None or 'unspecified' in u else "0"} as unspecified,
+	{f'(SUM(multiple){"/(select population from countries where code = origin)" if n else ""})' if u == None or 'multiple' in u else "0"} as multiple
+    {f"" if y==None else ", year as year" }
+from
+       exports
+
+group by
+        origin
+    {"" if points else ", destination"}
+    {'' if y==None else ", year"}
+        )
+        """
