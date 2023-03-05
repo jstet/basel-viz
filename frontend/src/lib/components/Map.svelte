@@ -147,6 +147,7 @@
             mouseMoveY = 0
             Tooltip
                 .style("opacity", 0.8)
+                .style("display", "block")
             /*
             select(this)
                 .style("stroke", "black")
@@ -171,6 +172,7 @@
             //console.log("mouseLeave:", d, pointer(d))
             Tooltip
                 .style("opacity", 0)
+                .style("display", "none")
             /*
             select(this)
                 .style("stroke", "none")
@@ -223,6 +225,7 @@
 
             Tooltip
                 .style("opacity", 0.8)
+                .style("display", "block")
             /*
             select(this)
                 .style("stroke", "black")
@@ -255,6 +258,7 @@
             mouseMoveY = 0
             Tooltip
                 .style("opacity", 0)
+                .style("display", "none")
             /*
             select(this)
                 .style("stroke", "none")
