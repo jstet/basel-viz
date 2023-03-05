@@ -136,7 +136,9 @@ def unidirect_query(y, s, n, l, u):
 		from
 			t1 as t3
 		join t1 on
-			t1.origin = t3.destination and t1.destination = t3.origin),
+			t1.origin = t3.destination and t1.destination = t3.origin
+        where not (t3.un1=0 and t3.un3=0 and t3.un4_1=0 and t3.un4_2=0 and t3.un4_3=0 and t3.un5_1=0 and t3.un5_2=0 and t3.un6_1=0 and t3.un6_2=0 and t3.un8=0 and t3.un9=0 and t3.unspecified=0 and t3.multiple=0)    
+            ),
 
 	unidirect as(
 select
@@ -439,19 +441,19 @@ where
     noExports as (
     
     select distinct {handle_name(l, 'code', 'countries')}, {handle_name(l, 'name', 'countries')}, {handle_name(l, 'lat', 'countries')}, {handle_name(l, 'lon', 'countries')}
-    from no_zeros join countries on no_zeros.destination=countries.code
+    from no_zeros join countries on no_zeros.destination={handle_name(l, 'code', 'countries')}
     {"" if y==None else "where " + handle_y2(y)}
     {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
-    {f"no_zeros.origin in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
+    {f"no_zeros.origin in (select {handle_name(l, 'code', 'c2')} from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
     {"" if s==None else 
-    f" union select {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')} from t1 as e3 join countries as c3 on e3.origin=c3.code where {handle_name(l, 'code', 'c3')}='{s}' and e3.origin not in (select c4.code from countries as c4 join no_zeros as e4 on e4.origin=c4.code {'' if y==None else 'where ' + handle_y2(y)})"}
+    f" union select {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')} from t1 as e3 join countries as c3 on e3.origin={handle_name(l, 'code', 'c3')} where {handle_name(l, 'code', 'c3')}='{s}' and e3.origin not in (select {handle_name(l, 'code', 'c4')} from countries as c4 join no_zeros as e4 on e4.origin={handle_name(l, 'code', 'c4')} {'' if y==None else 'where ' + handle_y2(y)})"}
 
     except
 	
     select distinct {handle_name(l, 'code')}, {handle_name(l, 'name')}, {handle_name(l, 'lat')}, {handle_name(l, 'lon')}
-    from countries as c join no_zeros as e on e.origin=c.code
+    from countries as c join no_zeros as e on e.origin={handle_name(l, 'code', 'c')}
     {"{temp}".format(temp=("where" if y is None and s is not None else "and" if s is not None else ""))} 
-    {f"e.destination in (select c2.code from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
+    {f"e.destination in (select {handle_name(l, 'code','c2')} from countries as c2 where '{s}' = {handle_name(l, 'code', 'c2')})" if s != None else ""}
         {"" if y==None else "and " + handle_y2(y)}
     
     )
