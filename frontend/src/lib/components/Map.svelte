@@ -9,9 +9,9 @@
         tileLayer,
         LatLng,
         GeoJSON,
-        svg,
+        svg, latLng,
     } from "leaflet";
-    import { palette } from "$lib/data/palette";
+    import {palette} from "$lib/data/palette";
     import {
         geoTransform,
         select,
@@ -20,7 +20,9 @@
         pie,
         scaleOrdinal,
         scaleLog,
+        pointer
     } from "d3";
+    import {z} from "../../../.svelte-kit/output/client/_app/immutable/chunks/index-9e089f55.js";
 
     export let flows;
     export let points;
@@ -38,7 +40,6 @@
     const maximumDonutWidth = 15;
     const circleBorderColor = "#525252"
     const greyLinkColor = "#525252"
-
 
     $: {
         // Flows
@@ -65,8 +66,7 @@
                 maxFlowAmount = flow.total;
             }
             if (flow.total < minFlowAmount) {
-                if (flow.total === 0) console.log("Backend still hasnt fixed the zero in Object: ", flow)
-                else minFlowAmount = flow.total;
+                minFlowAmount = flow.total;
             }
         }
         //console.log("maxFlowAmount: ", maxFlowAmount)
@@ -137,6 +137,46 @@
     }
 
     function createEmptyCircles(map1, zoom, center) {
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseMoveX
+        var mouseMoveY
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseover = function (d) {
+            //console.log("Mouseover")
+            mouseMoveX = 0
+            mouseMoveY = 0
+            Tooltip
+                .style("opacity", 0.8)
+            /*
+            select(this)
+                .style("stroke", "black")
+                .style("opacity", 1)*/
+        }
+
+        var mousemove = function (event, data) {
+            mouseMoveX += event.movementX
+            mouseMoveY += event.movementY
+
+            //console.log("coords: ", coords[data.origin_code].coordinates)
+            Tooltip
+                .html("No toxic waste exported by " + coords[data.origin_code].name + "<br>")
+                .style("left", map1.latLngToLayerPoint(coords[data.origin_code].coordinates, zoom, center).x + 20 + "px")
+                .style("top", map1.latLngToLayerPoint(coords[data.origin_code].coordinates, zoom, center).y - 45 + "px")
+            /*
+            .style("left",  pointer(event)[0] + 10 + "px")
+            .style("top",  pointer(event)[1] + 10 + "px")
+        */
+        }
+        var mouseleave = function (d) {
+            //console.log("mouseLeave:", d, pointer(d))
+            Tooltip
+                .style("opacity", 0)
+            /*
+            select(this)
+                .style("stroke", "none")
+                .style("opacity", 0.8)*/
+        }
+
         //Adds a svg to the map which always contains all the things we add into it
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
         // if stuff already there, delete first
@@ -152,28 +192,74 @@
             .attr("r", innerRad + minimumDonutWidth)
             .attr("stroke", circleBorderColor)
             .attr("stroke-width", 2)
-            .attr("fill", "none")
+            .attr("fill", "transparent")
+            .attr("pointer-events", "visible")
             .attr("class", "leaflet-zoom-hide")
             .attr("cx", function (d) {
-                var coord = map1._latLngToNewLayerPoint(
-                    coords[d.origin_code].coordinates,
-                    zoom,
-                    center
-                );
+                var coord = map1.latLngToLayerPoint(coords[d.origin_code].coordinates, zoom, center);
                 return coord.x;
             })
             .attr("cy", function (d) {
-                var coord = map1._latLngToNewLayerPoint(
-                    coords[d.origin_code].coordinates,
-                    zoom,
-                    center
+                var coord = map1.latLngToLayerPoint(coords[d.origin_code].coordinates, zoom, center
                 );
                 return coord.y;
             })
-            .attr("class", "leaflet-zoom-hide");
+            .attr("class", "leaflet-zoom-hide")
+            .on("mouseover", mouseover)
+            .on("mousemove", (d, e) => {
+                mousemove(d, e)
+            })
+            .on("mouseleave", mouseleave);
     }
 
     function createCountryDonuts(map1, zoom, center) {
+        var mouseMoveX
+        var mouseMoveY
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseover = function (d) {
+            //console.log("Mouseover")
+            mouseMoveX = 0
+            mouseMoveY = 0
+
+            Tooltip
+                .style("opacity", 0.8)
+            /*
+            select(this)
+                .style("stroke", "black")
+                .style("opacity", 1)*/
+        }
+        var mousemove = function (event, data) {
+            mouseMoveX += event.movementX
+            mouseMoveY += event.movementY
+
+            // console.log("Mousemove", [event.movementX, event.movementY], mouseMoveX, mouseMoveY)
+            Tooltip
+                .html("Toxic waste exported by " + coords[data.original.origin_code].name + "<br>")
+                .style("left", map1.latLngToLayerPoint(coords[data.original.origin_code].coordinates, zoom, center).x + 20 + "px")
+                .style("top", map1.latLngToLayerPoint(coords[data.original.origin_code].coordinates, zoom, center).y - 290 + "px")
+                /*
+                .style("left",  pointer(event)[0] + 10 + "px")
+                .style("top",  pointer(event)[1] + 10 + "px")
+            */
+                .selectAll("p")
+                .data(palette.description)
+                .enter()
+                .append("p")
+                .html((labels, iter) => {
+                    return `${labels}: ${Math.round(data.original.abs_un_classes[iter].value)} t`
+                }) // round value
+        }
+        var mouseleave = function (d) {
+            //console.log("mouseLeave:", d, pointer(d))
+            mouseMoveX = 0
+            mouseMoveY = 0
+            Tooltip
+                .style("opacity", 0)
+            /*
+            select(this)
+                .style("stroke", "none")
+                .style("opacity", 0.8)*/
+        }
         //Adds a svg to the map which always contains all the things we add into it
         var d3Svg = select(map1.getPanes().overlayPane).select("svg");
         // if stuff already there, delete first
@@ -188,17 +274,16 @@
             .append("g");
 
         donutGroups
-            .attr("style", function (d) {
-                var coord = map1._latLngToNewLayerPoint(
-                    coords[d.original.origin_code].coordinates,
-                    zoom,
-                    center
-                );
+            .attr("transform", function (d) {
+                var coord = map1.latLngToLayerPoint(new latLng(coords[d.original.origin_code].coordinates), zoom, center);
+                //console.log(coord, "Country: ", coords[d.original.origin_code].name, " Zoom:", zoom, " Center:", center, " Code:", d.original.origin_code, " Coords:", coords[d.original.origin_code].coordinates)
                 return (
-                    "transform: translate(" + coord.x + "px," + coord.y + "px)"
+                    "translate(" + coord.x + "," + coord.y + ")"
                 );
             })
-            .attr("class", "leaflet-zoom-hide");
+            .attr("pointer-events", "auto")
+            .attr("class", "leaflet-zoom-hide")
+        //.attr("class", "leaflet-interactive")
 
         // pie generator
         var pie1 = pie()
@@ -215,12 +300,16 @@
             .append("circle")
             .attr("stroke", circleBorderColor)
             .attr("stroke-width", 2)
-            .attr("r", d => { if (d.original.origin_code==="gb") {
-                console.log("data : ", d);
-            };
-                return innerRad + DonutSizeScale(d.total) +1
+            .attr("r", d => {
+                return innerRad + DonutSizeScale(d.total) + 1
             })
-            .attr("cx", "0").attr("cy", "0").attr("fill", "none")
+            .attr("cx", "0").attr("cy", "0")
+            .attr("fill", "transparent")
+            .on("mouseover", mouseover)
+            .on("mousemove", (d, e) => {
+                mousemove(d, e)
+            })
+            .on("mouseleave", mouseleave)
 
         //slices
         var slice1 = donutGroups
@@ -283,17 +372,15 @@
             });
 
         function mapGeometry(link, zoom, center, zeroflow = false) {
-
-
             var radius = innerRad + minimumDonutWidth;
             if (zeroflow === false) {
 
-                var coords1 = map1._latLngToNewLayerPoint(
+                var coords1 = map1.latLngToLayerPoint(
                     coords[link.original.origin_code].coordinates,
                     zoom,
                     center
                 );
-                var coords2 = map1._latLngToNewLayerPoint(
+                var coords2 = map1.latLngToLayerPoint(
                     coords[link.original.destination_code].coordinates,
                     zoom,
                     center
@@ -301,12 +388,12 @@
             } else {
 
                 // change the direction of the relationship between the two nodes destination and origin
-                var coords1 = map1._latLngToNewLayerPoint(
+                var coords1 = map1.latLngToLayerPoint(
                     coords[link.original.destination_code].coordinates,
                     zoom,
                     center
                 );
-                var coords2 = map1._latLngToNewLayerPoint(
+                var coords2 = map1.latLngToLayerPoint(
                     coords[link.original.origin_code].coordinates,
                     zoom,
                     center
@@ -348,11 +435,29 @@
     }
 
     let map1;
+    let Tooltip
 
     function onMount(container) {
         map1 = createMap(container);
+        //Attaches SVG to Map
         svg({clickable: true}).addTo(map1);
-        map1.on("zoomanim", (e) => {
+
+        // create a tooltip
+        Tooltip = select(map1.getPanes().overlayPane)
+            .append("div")
+            .attr("id", "tool")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+            .style("position", "absolute")
+            .style("width", "300px") // text will wrap if the box is too small
+            .style("z-index", "1000")
+
+        map1.on("zoomend", (e) => {
             createLinesBetweenCountries(map1, e.zoom, e.center);
             createEmptyCircles(map1, e.zoom, e.center);
             createCountryDonuts(map1, e.zoom, e.center);
