@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import Slider from "@bulatdashiev/svelte-slider";
+    import MultiSelect from './MultiSelect.svelte';
     import { palette } from "$lib/data/palette";
     import { Modal, ModalContent, Tooltip } from "$lib/components";
     import {
@@ -15,9 +16,9 @@
         UN_class_6_1,
         UN_class_6_2,
         UN_class_8,
-        UN_class_9
-        
+        UN_class_9,
     } from "$lib/svg";
+
 
     export let select_options_in = [];
 
@@ -30,12 +31,12 @@
         level = [levels.indexOf($page.url.searchParams.get("level")) + 1, 4];
     }
 
-    let selected = "all";
+    let selection = "all";
     if (level[0] == 1) {
-        selected = "af";
+        selection = "af";
     }
-    if ($page.url.searchParams.get("selected") !== null) {
-        selected = $page.url.searchParams.get("selected");
+    if ($page.url.searchParams.get("selection") !== null) {
+        selection = $page.url.searchParams.get("selection");
     }
 
     let years = [2001, 2021];
@@ -51,25 +52,36 @@
     }
 
     let select_options = [];
-    $: select_options = select_options_in[level[0] - 1];
+    $: select_options = select_options_in[level[0] - 1];    
 
-    let category = "all";
-    if ($page.url.searchParams.get("category") !== null) {
-        category = $page.url.searchParams.get("category");
+    let categories = ["all"];
+
+    function handleSelected(s){
+        if (categories.includes(s)){
+            console.log("selected")
+            return "selected"
+            
+        }
+        else{return ""}
     }
 
-    $: console.log(category)
+    if ($page.url.searchParams.get("categories") !== null) {
+        
+        categories = $page.url.searchParams.get("categories")?.split(",");
+       
+    }
 
+   $:console.log(categories)
     let range;
     let showModal = false;
 
     async function set_url() {
         const url = $page.url.searchParams;
-        url.set("selected", selected);
+        url.set("selection", selection);
         url.set("per_capita", per_capita);
         url.set("years", years);
         url.set("level", levels[level[0] - 1]);
-        url.set("category", category);
+        url.set("categories", categories);
         await goto(`?${url}`, { invalidateAll: true });
     }
 
@@ -116,7 +128,7 @@
                     step="1"
                     bind:value={level}
                     on:input={() => {
-                        level[0] != 1 ? (selected = "all") : (selected = "af");
+                        level[0] != 1 ? (selection = "all") : (selection = "af");
                     }}
                 >
                     <div slot="left" class="bg-white">
@@ -129,16 +141,16 @@
                 </Slider>
             </div>
         </div>
-        <!-- Dropdown -->
+        <!-- Country Dropdown -->
         <div class="pb-4">
             <label class="pr-3" for="select">Select:</label>
             <select
                 class="px-3 w-2/4"
                 name="country"
                 id="select"
-                bind:value={selected}
+                bind:value={selection}
             >
-                <option selected value="all">All</option>
+                <option selection value="all">All</option>
                 {#if select_options}
                     {#each Object.entries(select_options) as option}
                         <option value={option[0]}>{option[1].name}</option>
@@ -165,30 +177,24 @@
             </div>
         </div>
         <!-- Categories Dropdown-->
-        <div class="pb-4">
-            <label class="pr-3" for="select">Category:</label>
-            <select
-                class="px-3 w-2/4"
-                name="category"
-                id="category"
-                bind:value={category}
-            >
-                <option selected value="all">All</option>
-                <option selected value="1">Class 1</option>
-                <option selected value="3">Class 3</option>
-                <option selected value="4_1">Class 4.1</option>
-                <option selected value="4_2">Class 4.2</option>
-                <option selected value="4_3">Class 4.3</option>
-                <option selected value="5_1">Class 5.1</option>
-                <option selected value="5_2">Class 5.2</option>
-                <option selected value="6_1">Class 6.1</option>
-                <option selected value="6_2">Class 6.2</option>
-                <option selected value="8">Class 8</option>
-                <option selected value="9">Class 9</option>
-                <option selected value="unspecified">Class Unknown</option>
-                <option selected value="multiple">Multiple Classes</option>
-            </select>
-        </div>
+
+        <MultiSelect  bind:value={categories}>
+            <option selected={`${handleSelected("all")}`} value="all">All</option>
+            <option selected={`${handleSelected("1")}`} value="1">Class 1</option>
+            <option selected={`${handleSelected("3")}` } value="3">Class 3</option>
+            <option selected={`${handleSelected("4_1")}`} value="4_1">Class 4.1</option>
+            <option selected={`${handleSelected("4_2")}`} value="4_2">Class 4.2</option>
+            <option selected={`${handleSelected("4_3")}`} value="4_3">Class 4.3</option>
+            <option selected={`${handleSelected("5_1")}`} value="5_1">Class 5.1</option>
+            <option selected={`${handleSelected("5_2")}`} value="5_2">Class 5.2</option>
+            <option selected={`${handleSelected("6_1")}`} value="6_1">Class 6.1</option>
+            <option selected={`${handleSelected("6_2")}`} value="6_2">Class 6.2</option>
+            <option selected={`${handleSelected("8")}`} value="8">Class 8</option>
+            <option selected={`${handleSelected("9")}`} value="9">Class 9</option>
+            <option selected={`${handleSelected("unknown")}`} value="unspecified">Class Unknown</option>
+            <option selected={`${handleSelected("multiple")}`} value="multiple">Multiple Classes</option>
+        </MultiSelect>
+       
         <!-- per_capita Checkbox -->
         <div class="pb-4 flex items-center">
             <label class="pr-2">
@@ -197,12 +203,11 @@
             </label>
             <Tooltip>Amount divided by population</Tooltip>
         </div>
-        
+
         <button
             class="border rounded py-1 px-3 bg-neutral-200 mb-6"
             on:click={set_url}>Submit</button
         >
-
     </div>
     <div class="">
         <h1 class="font-bold text-lg pb-3">Legend</h1>
@@ -212,7 +217,9 @@
                 <div class="flex space-x-4 text-sm items-center">
                     <div
                         class=""
-                        style="background-color: {palette.colors[i]}; min-height: {svg_w}px; min-width: {svg_w}px;"
+                        style="background-color: {palette.colors[
+                            i
+                        ]}; min-height: {svg_w}px; min-width: {svg_w}px;"
                     >
                         {#if palette.svgs[i] != ""}
                             <svelte:component
@@ -237,7 +244,6 @@
                 </div>
             {/each}
         </div>
-
     </div>
 </div>
 <!-- Modal Content -->
