@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.2.0"
+  },
+  "dependencies": {
+    "svelte-multiselect": "^8.4.0"
   }
 }

@@ -8,7 +8,7 @@ export async function load({ url }) {
     let level = url.searchParams.get("level")
     let years = url.searchParams.get("years")
     let per_capita = url.searchParams.get("per_capita")
-    let category = url.searchParams.get("category")
+    let categories = url.searchParams.get("categories")
 
     let flows_url = API_URL + "/flows?";
     let points_url = API_URL + "/points?";
@@ -43,18 +43,21 @@ export async function load({ url }) {
         coords_url = coords_url + `n=${per_capita}&`
         no_exports_url = no_exports_url + `n=${per_capita}&`
     }
-    if (category) {
-        if (category == "all") {
+    if (categories) {
+        if (categories == "all") {
         }
         else{
-        flows_url = flows_url + `u=${category}&`
-        points_url = points_url + `u=${category}&`
-        coords_url = coords_url + `u=${category}&`
-        no_exports_url = no_exports_url + `u=${category}&`
+        let c = categories.split(",")
+        let cs = "";
+        for (let i = 0; i < c.length; i++) {
+            cs += "u=" + c[i] + "&";
+          } 
+        flows_url = flows_url + cs
+        points_url = points_url + cs
+        coords_url = coords_url + cs
+        no_exports_url = no_exports_url + cs
         }
     }
-
-    console.log(flows_url)
 
     const flows_response = await fetch(flows_url)
     const flows = flows_response.json()
