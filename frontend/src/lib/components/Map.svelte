@@ -439,6 +439,7 @@
 
     function onMount(container) {
         map1 = createMap(container);
+        map1.attributionControl.setPosition('topright')
         //Attaches SVG to Map
         svg({clickable: true}).addTo(map1);
 
@@ -493,7 +494,7 @@
         integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
         crossorigin=""
 />
-<div id="map" class="w-100 h-full" use:onMount/>
+<div id="map" class="w-100 h-full z-0" use:onMount/>
 
 <style global>
     :global(.leaflet-zoom-anim #donutGroup > g) {

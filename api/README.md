@@ -18,7 +18,6 @@ POSTGRES_URL=postgresql://postgres:postgres@localhost:5434/main
 ## Starting API
 1. Start DB
 ```
-
 docker compose -f database.yml down --volumes
 docker compose -f database.yml build --no-cache 
 docker compose -f database.yml  up --force-recreate
