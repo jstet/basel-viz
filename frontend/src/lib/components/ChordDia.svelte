@@ -94,8 +94,22 @@
         var matrix2 = baseMatrix
         /*Sums up to exactly 100*/
 
-        var colors = ["#C4C4C4", "#69B40F", "#EC1D25", "#C8125C",
-            "#008FC8", "#10218B", "#134B24", "#737373"];
+        const colors = [
+            '#1a669a',
+            '#8db46a',
+            '#5e5e5e',
+            '#225221',
+            '#bd6b6b',
+            '#952c98',
+            '#142a7e',
+            '#c46303',
+            '#865f9a',
+            '#4a2b6b',
+            '#a1a11f',
+            '#733007'
+        ];
+
+
         /*Initiate the color scale*/
         var fillColorScale = scaleOrdinal()
             .domain(range(NameProvider.length))
