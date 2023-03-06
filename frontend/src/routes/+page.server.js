@@ -4,7 +4,7 @@ import { API_URL } from '$env/static/private';
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ url }) {
 
-    let selected = url.searchParams.get("selected")
+    let selected = url.searchParams.get("selection")
     let level = url.searchParams.get("level")
     let years = url.searchParams.get("years")
     let per_capita = url.searchParams.get("per_capita")
@@ -58,7 +58,7 @@ export async function load({ url }) {
         no_exports_url = no_exports_url + cs
         }
     }
-
+    console.log("Flow:", flows_url, selected)
     const flows_response = await fetch(flows_url)
     const flows = flows_response.json()
 
