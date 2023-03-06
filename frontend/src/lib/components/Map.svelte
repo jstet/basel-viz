@@ -29,7 +29,6 @@
     export let coords;
     export let no_exports;
 
-    // $: console.log(coords)
 
     let summedFlows;
     let summedPoints;

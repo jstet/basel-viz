@@ -13,9 +13,14 @@
 
     export let flows;
     export let points;
+    export let coords;
     export let no_exports;
 
+
+    var mat
+    var listOfNames
     // functions
+
     const q_mat = (n) => [...Array(n)].map(_ => Array(n).fill(0)); // initialize quadratic matrix with n rows and n columns
     let summedFlows; // todo only do once, right now, map does the same.
     $: {
@@ -25,11 +30,19 @@
             return acc;
         }, new Map());
 
-        let mat = q_mat(Object.keys(points).length + Object.keys(no_exports).length); // sum of locations
+        mat = q_mat(Object.keys(points).length + Object.keys(no_exports).length); // sum of locations
         const originCodesOrder = Object.fromEntries(originCodesMap); // array to reference matrix locations
 
         // Flows
         summedFlows = {};
+        let keysOfOriginCode = Object.keys(originCodesOrder);
+
+        // Then sort by using the keys to lookup the values in the original object:
+        keysOfOriginCode.sort(function(a, b) { return originCodesOrder[a] - originCodesOrder[b] });
+        listOfNames = keysOfOriginCode.map((key) => {
+            if(!isNaN(key)) return coords[parseInt(key)].name
+            else return coords[key].name
+        })
         Object.keys(flows).forEach((key) => {
             summedFlows[key] = flows[key].map((d) => {
                 return {
@@ -50,37 +63,39 @@
             mat[origin_index][destination_index] = flow.total // origins are rows, destinations are columns
         }
 
+        //Normalze Matrix to 100
+        //getTotal:
+        const total = mat.reduce((partial, current) => {
+            const currentTotal = current.reduce((partialInner, currentInner) => partialInner + currentInner, 0)
+            return partial + currentTotal;
+        }, 0)
+
+        //applyTotal
+        mat = mat.map((currentList) => {
+            return currentList.map(val => val * 100 / total )
+        })
 
         /*//////////////////////////////////////////////////////////
         ////////////////// Set up the Data /////////////////////////
         //////////////////////////////////////////////////////////*/
 
         /*Sums up to exactly 100*/
-        drawChord(mat)
+        drawChord(mat, listOfNames)
     }
 
-    function drawChord(baseMatrix) {
+    function drawChord(baseMatrix, listOfNames) {
 
         const opacityValueBase = 0.8
         /*//////////////////////////////////////////////////////////
          ////////////////// Set up the Data /////////////////////////
          //////////////////////////////////////////////////////////*/
 
-        var NameProvider = ["Apple", "HTC", "Huawei", "LG", "Nokia", "Samsung", "Sony", "Other"];
-
-        var matrix2 = [
-            [9.6899, 0.8859, 0.0554, 0.443, 2.5471, 2.4363, 0.5537, 2.5471], /*Apple 19.1584*/
-            [0.1107, 1.8272, 0, 0.4983, 1.1074, 1.052, 0.2215, 0.4983], /*HTC 5.3154*/
-            [0.0554, 0.2769, 0.2215, 0.2215, 0.3876, 0.8306, 0.0554, 0.3322], /*Huawei 2.3811*/
-            [0.0554, 0.1107, 0.0554, 1.2182, 1.1628, 0.6645, 0.4983, 1.052], /*LG 4.8173*/
-            [0.2215, 0.443, 0, 0.2769, 10.4097, 1.2182, 0.4983, 2.8239], /*Nokia 15.8915*/
-            [1.1628, 2.6024, 0, 1.3843, 8.7486, 16.8328, 1.7165, 5.5925], /*Samsung 38.0399*/
-            [0.0554, 0.4983, 0, 0.3322, 0.443, 0.8859, 1.7719, 0.443], /*Sony 4.4297*/
-            [0.2215, 0.7198, 0, 0.3322, 1.6611, 1.495, 0.1107, 5.4264] /*Other 9.9667*/
-        ];
+        var NameProvider = listOfNames;
+        var matrix2 = baseMatrix
         /*Sums up to exactly 100*/
 
-        var colors = ["#C4C4C4", "#69B40F", "#EC1D25", "#C8125C", "#008FC8", "#10218B", "#134B24", "#737373"];
+        var colors = ["#C4C4C4", "#69B40F", "#EC1D25", "#C8125C",
+            "#008FC8", "#10218B", "#134B24", "#737373"];
         /*Initiate the color scale*/
         var fillColorScale = scaleOrdinal()
             .domain(range(NameProvider.length))
@@ -89,12 +104,13 @@
         /////////////// Initiate Chord Diagram /////////////////////
         //////////////////////////////////////////////////////////*/
         var margin = {top: 30, right: 25, bottom: 20, left: 25},
-            width = 650 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom,
-            innerRadius = Math.min(width, height) * .39,
+            width = 1200 - margin.left - margin.right,
+            height = 800 - margin.top - margin.bottom,
+            innerRadius = Math.min(width, height) * .29,
             outerRadius = innerRadius * 1.04;
         /*Initiate the SVG*/
         var svg1 = select("#Chord")
+        svg1.select("svg").remove()
         var svg2 = svg1.append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -260,7 +276,7 @@
     }
 
     function onMount(container) {
-        drawChord()
+        drawChord(mat, listOfNames)
     }
 </script>
 
