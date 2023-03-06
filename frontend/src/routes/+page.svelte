@@ -35,7 +35,7 @@
                 <Map {flows} {points} {coords} {no_exports} />
             </TabContentItem>
             <TabContentItem id={2} {activeTabValue}>
-                <ChordDia />
+                <ChordDia {flows} {points} {no_exports} />
             </TabContentItem>
         </TabWrapper>
     </div>
