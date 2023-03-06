@@ -294,7 +294,7 @@
     }
 </script>
 
-<div class="h-full w-full bg-white-300" id="Chord" use:onMount></div>
+<div class="h-full w-full bg-white-300 flex justify-center items-center" id="Chord" use:onMount></div>
 
 <style >
     body {

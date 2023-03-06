@@ -71,7 +71,6 @@
        
     }
 
-   $:console.log(categories)
     let range;
     let showModal = false;
 

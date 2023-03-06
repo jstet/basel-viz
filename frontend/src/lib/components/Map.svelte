@@ -22,7 +22,7 @@
         scaleLog,
         pointer
     } from "d3";
-    import {z} from "../../../.svelte-kit/output/client/_app/immutable/chunks/index-9e089f55.js";
+   
 
     export let flows;
     export let points;
@@ -159,7 +159,7 @@
 
             //console.log("coords: ", coords[data.origin_code].coordinates)
             Tooltip
-                .html("No toxic waste exported by " + coords[data.origin_code].name + "<br>")
+                .html("No hazardous waste exported by " + coords[data.origin_code].name + "<br>")
                 .style("left", map1.latLngToLayerPoint(coords[data.origin_code].coordinates, zoom, center).x + 20 + "px")
                 .style("top", map1.latLngToLayerPoint(coords[data.origin_code].coordinates, zoom, center).y - 45 + "px")
             /*
@@ -236,7 +236,7 @@
 
             // console.log("Mousemove", [event.movementX, event.movementY], mouseMoveX, mouseMoveY)
             Tooltip
-                .html("Toxic waste exported by " + coords[data.original.origin_code].name + "<br>")
+                .html("Hazardous waste exported by " + coords[data.original.origin_code].name + "<br>")
                 .style("left", map1.latLngToLayerPoint(coords[data.original.origin_code].coordinates, zoom, center).x + 20 + "px")
                 .style("top", map1.latLngToLayerPoint(coords[data.original.origin_code].coordinates, zoom, center).y - 290 + "px")
                 /*

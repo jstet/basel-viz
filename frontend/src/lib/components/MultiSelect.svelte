@@ -101,7 +101,6 @@
     if (value == "all") {
       selected = [];
       add(options.filter((o) => o.value === value)[0]);
-      input.focus();
     } else {
       if (selected[value]) {
         remove(value);
@@ -110,7 +109,6 @@
           remove("all");
         }
         add(options.filter((o) => o.value === value)[0]);
-        input.focus();
       }
     }
   }
@@ -264,15 +262,6 @@
     min-width: 15rem;
   }
 
-  input {
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1.5rem;
-    margin: 0;
-    outline: none;
-    padding: 0;
-    width: 100%;
-  }
 
   .dropdown-arrow path {
     fill: hsl(0, 0%, 70%);
