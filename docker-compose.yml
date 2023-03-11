@@ -36,7 +36,7 @@ services:
     networks:
       - db
     environment:
-      - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/main
+      - POSTGRES_URL=postgresql://postgres:postgres@db:5432/main
     deploy:
       mode: global
       placement:
