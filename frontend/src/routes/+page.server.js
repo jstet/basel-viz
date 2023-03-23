@@ -1,5 +1,5 @@
 
-import { PUBLIC_PUBLIC_API_URL } from "$env/static/public";
+import { PUBLIC_API_URL } from "$env/static/public";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ url }) {
