@@ -1,5 +1,5 @@
 
-import { API_URL } from '$env/static/private';
+import { PUBLIC_PUBLIC_API_URL } from "$env/static/public";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ url }) {
@@ -10,10 +10,10 @@ export async function load({ url }) {
     let per_capita = url.searchParams.get("per_capita")
     let categories = url.searchParams.get("categories")
 
-    let flows_url = API_URL + "/flows?";
-    let points_url = API_URL + "/points?";
-    let coords_url = API_URL + "/coords?";
-    let no_exports_url = API_URL + "/no_exports?";
+    let flows_url = PUBLIC_API_URL + "/flows?";
+    let points_url = PUBLIC_API_URL + "/points?";
+    let coords_url = PUBLIC_API_URL + "/coords?";
+    let no_exports_url = PUBLIC_API_URL + "/no_exports?";
    
     if (selected) {
         if (selected == "all") {
@@ -75,7 +75,7 @@ export async function load({ url }) {
     const levels = ["country", "sub_region", "region"];
     for (let i = 0; i < levels.length; i++) {
         
-        let select_options_url = API_URL + "/coords?d=True&l=" + levels[i]
+        let select_options_url = PUBLIC_API_URL + "/coords?d=True&l=" + levels[i]
         let select_options_response = await fetch(select_options_url)
         let select_options = select_options_response.json()
         select_options_obj[i] = await select_options
