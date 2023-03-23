@@ -1,8 +1,8 @@
 version: "3.8"
 services:
   postgres:
-    container_name: db
-    image: localhost:5000/db
+    container_name: postgres
+    image: localhost:5000/postgres
     build: ./db/.
     environment:
       - POSTGRES_USER=postgres
@@ -28,8 +28,8 @@ services:
         condition: on-failure
 
   fastapi:
-    container_name: api
-    image: localhost:5000/api
+    container_name: fastapi
+    image: localhost:5000/fastapi
     build: ./api/.
     ports:
       - 8000
@@ -50,9 +50,13 @@ services:
   frontend:
     container_name: frontend
     image: localhost:5000/frontend
-    build: ./frontend/.
+    build: 
+      context: ./frontend/.
+      args:
+        - NODE_ENV=production
+        - API_URL=fastapi:3000
     environment:
-      API_URL: api:3000
+      API_URL: fastapi:3000
     networks:
       - db
     ports:
