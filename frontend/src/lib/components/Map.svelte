@@ -1,16 +1,16 @@
 <script>
-    import {
-        control,
-        divIcon,
-        DomUtil,
-        layerGroup,
-        map,
-        polyline,
-        tileLayer,
-        LatLng,
-        GeoJSON,
-        svg, latLng,
-    } from "leaflet";
+    // import {
+    //     control,
+    //     divIcon,
+    //     DomUtil,
+    //     layerGroup,
+    //     map,
+    //     polyline,
+    //     tileLayer,
+    //     LatLng,
+    //     GeoJSON,
+    //     svg, latLng,
+    // } from "leaflet";
     import {palette} from "$lib/data/palette";
     import {
         geoTransform,
@@ -109,31 +109,7 @@
         .domain(palette.labels)
         .range(palette.colors); // bold from carto.com
 
-    function createMap(container) {
-        // Setting initial position and zoom of map and restricting zoom
-        let m = map(container, {
-            preferCanvas: false,
-            maxZoom: 9,
-            minZoom: 3,
-            maxBounds: [
-                //south west
-                [-90, -200],
-                //north east
-                [90, 200],
-            ],
-        }).setView(initialView, 3);
-        // available basemaps: https://leaflet-extras.github.io/leaflet-providers/preview/
-        tileLayer(
-            "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-            {
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                subdomains: "abcd",
-                maxZoom: 20,
-            }
-        ).addTo(m);
-        return m;
-    }
+   
 
     function createEmptyCircles(map1, zoom, center) {
         // Three function that change the tooltip when user hover / move / leave a cell
@@ -213,7 +189,7 @@
             .on("mouseleave", mouseleave);
     }
 
-    function createCountryDonuts(map1, zoom, center) {
+    async function createCountryDonuts(map1, zoom, center) {
         var mouseMoveX
         var mouseMoveY
         // Three function that change the tooltip when user hover / move / leave a cell
@@ -275,10 +251,10 @@
             .data(summedPoints)
             .enter()
             .append("g");
-
+        const l = (await import('leaflet')).default
         donutGroups
             .attr("transform", function (d) {
-                var coord = map1.latLngToLayerPoint(new latLng(coords[d.original.origin_code].coordinates), zoom, center);
+                var coord = map1.latLngToLayerPoint(new l.latLng(coords[d.original.origin_code].coordinates), zoom, center);
                 //console.log(coord, "Country: ", coords[d.original.origin_code].name, " Zoom:", zoom, " Center:", center, " Code:", d.original.origin_code, " Coords:", coords[d.original.origin_code].coordinates)
                 return (
                     "translate(" + coord.x + "," + coord.y + ")"
@@ -440,11 +416,37 @@
     let map1;
     let Tooltip
 
-    function onMount(container) {
+    async function onMount(container) {
+        const l = (await import('leaflet')).default
+        function createMap(container) {
+        // Setting initial position and zoom of map and restricting zoom
+        let m = l.map(container, {
+            preferCanvas: false,
+            maxZoom: 9,
+            minZoom: 3,
+            maxBounds: [
+                //south west
+                [-90, -200],
+                //north east
+                [90, 200],
+            ],
+        }).setView(initialView, 3);
+        // available basemaps: https://leaflet-extras.github.io/leaflet-providers/preview/
+        l.tileLayer(
+            "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+            {
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: "abcd",
+                maxZoom: 20,
+            }
+        ).addTo(m);
+        return m;
+    }
         map1 = createMap(container);
         map1.attributionControl.setPosition('topright')
         //Attaches SVG to Map
-        svg({clickable: true}).addTo(map1);
+        l.svg({clickable: true}).addTo(map1);
 
         // create a tooltip
         Tooltip = select(map1.getPanes().overlayPane)
