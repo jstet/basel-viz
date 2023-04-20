@@ -24,7 +24,7 @@ services:
     container_name: fastapi
     build: ./api/.
     ports:
-      - 8000
+      - 3000:8000
     networks:
       - db
       - frontend
@@ -40,7 +40,7 @@ services:
         - NODE_ENV=production
         - PUBLIC_API_URL=fastapi:8000
     ports:
-      - 3000
+      - 8000:3000
     networks: 
       - frontend
       - caddy
