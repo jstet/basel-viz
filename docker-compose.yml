@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  
+
   postgres:
     container_name: postgres
     build: ./db/.
@@ -18,36 +18,35 @@ services:
       timeout: 5s
       retries: 5
     restart: always
-   
+
 
   fastapi:
     container_name: fastapi
     build: ./api/.
     ports:
-      - 8000
+            - 8000:8000
     networks:
       - db
       - frontend
     environment:
       - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/main
-    restart: always    
+    restart: always
 
   frontend:
     container_name: frontend
-    build: 
+    build:
       context: ./frontend/.
       args:
         - NODE_ENV=production
-        - PUBLIC_API_URL=fastapi:8000
+        - PUBLIC_API_URL=http://fastapi:8000
     ports:
       - 3000:3000
-    networks: 
+    networks:
       - frontend
     restart: always
-   
+
 networks:
   db:
     name: db
   frontend:
-    name: frontend  
-
+    name: frontend
