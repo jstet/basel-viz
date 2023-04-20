@@ -40,10 +40,14 @@ services:
         - NODE_ENV=production
         - PUBLIC_API_URL=fastapi:8000
     ports:
-      - 8000:3000
+      - 3000
     networks: 
       - frontend
     restart: always
+
+    labels:
+      caddy: "basel-viz.jstet.net"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
    
   
 networks:
