@@ -24,7 +24,7 @@ services:
     container_name: fastapi
     build: ./api/.
     ports:
-      - 3000:8000
+      - 8000
     networks:
       - db
       - frontend
@@ -40,21 +40,14 @@ services:
         - NODE_ENV=production
         - PUBLIC_API_URL=fastapi:8000
     ports:
-      - 8000:3000
+      - 3000:3000
     networks: 
       - frontend
-      - caddy
     restart: always
-
-    labels:
-      caddy: "basel-viz.jstet.net"
-      caddy.reverse_proxy: "{{upstreams 3000}}"
    
-  
 networks:
   db:
     name: db
   frontend:
     name: frontend  
-  caddy:
-    external: true
+
