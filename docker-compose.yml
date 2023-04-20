@@ -56,7 +56,5 @@ networks:
     name: db
   frontend:
     name: frontend  
-
-networks:
   caddy:
     external: true
