@@ -2,6 +2,7 @@ FROM postgres:15
 # copy init.sh to container
 COPY ./init.sh docker-entrypoint-initdb.d/init.sh
 RUN sed -i -e 's/\r$//' docker-entrypoint-initdb.d/init.sh
+RUN chmod +x /docker-entrypoint-initdb.d/init.sh
 # copying data to container
 RUN mkdir /init_data
 RUN apt-get update && apt-get -y install wget
