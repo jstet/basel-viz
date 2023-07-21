@@ -4,6 +4,7 @@ services:
     container_name: db
     image: db
     build: ./db/.
+    command: postgres -c listen_addresses='*'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
