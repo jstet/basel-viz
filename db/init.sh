@@ -24,7 +24,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"<<-EO
     );
   
 COPY exports(id, origin, destination, year, UN1,UN3,UN4_1,UN4_2,UN4_3,UN5_1,UN5_2,UN6_1,UN6_2,UN8,UN9,unspecified,multiple)
-FROM '/data/flows.csv'
+FROM '/init_data/flows.csv'
 CSV HEADER DELIMITER ',';
 
  CREATE TABLE countries(
@@ -49,7 +49,7 @@ CSV HEADER DELIMITER ',';
     );
   
 COPY countries(code,name,lat,lon,region_code,region_name,region_lat,region_lon,sub_region_code,sub_region_name, sub_region_lat, sub_region_lon, hdi_code, hdi_name, hdi_lat, hdi_lon, population, destination_only)
-FROM '/data/countries.csv'
+FROM '/init_data/countries.csv'
 CSV HEADER DELIMITER ',';
   
 EOSQL
