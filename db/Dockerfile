@@ -3,6 +3,7 @@ FROM postgres:15
 # Copy the init.sh script and set permissions
 COPY ./init.sh /docker-entrypoint-initdb.d/init.sh
 RUN chmod +x /docker-entrypoint-initdb.d/init.sh
+RUN sed -i -e 's/\r$//' docker-entrypoint-initdb.d/init.sh
 
 # Create a directory for data
 RUN mkdir /init_data
