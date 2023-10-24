@@ -20,8 +20,7 @@ def to_obj(x):
 
 def query_flows(db: Session, s, y, n, l, u):
     bidirectional = to_lst(db.execute(text(bidirect_query(s=s, y=y, n=n, l=l, u=u))))
-    unidirectional = to_lst(db.execute(text(unidirect_query(s=s, y=y, n=n, l=l, u=u)))) 
-    print(unidirect_query(s=s, y=y, n=n, l=l, u=u))   
+    unidirectional = to_lst(db.execute(text(unidirect_query(s=s, y=y, n=n, l=l, u=u))))  
     return {"bidirectional": bidirectional, "unidirectional": unidirectional}
 
 

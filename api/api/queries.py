@@ -28,7 +28,6 @@ def handle_name(l, type, table=""):
 
 
 def handle_where(l, y, points, type, table=""):
-    print(points)
     if y is None:
         if points:
             return ""
