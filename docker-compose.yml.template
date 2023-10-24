@@ -1,0 +1,54 @@
+version: "3.8"
+services:
+
+  basel-viz-postgres:
+    container_name: basel-viz-postgres
+    command: postgres -c listen_addresses='*'
+    build: ./db/.
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=main
+    ports:
+      - 5432
+    networks:
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+
+  basel-viz-fastapi:
+    container_name: basel-viz-fastapi
+    build: ./api/.
+    ports:
+      - 8000
+    networks:
+      - db
+      - frontend
+    environment:
+      - POSTGRES_URL=postgresql://postgres:postgres@basel-viz-postgres:5432/main
+    restart: always
+
+  basel-viz-frontend:
+    container_name: basel-viz-frontend
+    build:
+      context: ./frontend/.
+      args:
+        - NODE_ENV=production
+        - PUBLIC_API_URL=http://basel-viz-fastapi:8000
+    ports:
+      - 8000:3000
+    restart: always
+    networks:
+      - frontend
+
+networks:
+  db:
+    name: db
+  frontend:
+    name: frontend
+

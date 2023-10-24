@@ -1,14 +1,16 @@
 ## Setup
-1. First, create a .env file with follwing contents:
+1. First, create a .env file with following contents:
 ```
 PUBLIC_API_URL=http://localhost:3000
+
+
 ```
-2. Then, u gotta start the API and the DB. 
+2. Then, start the API and the DB. 
 
 ```
 docker compose -f api.yml  up 
 ```
-3. Then, run the sveltekit project with:
+3. Then, run the Svelte Kit project with:
 ```
 npm run dev
 ```

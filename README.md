@@ -7,7 +7,7 @@ This repo is the result of a group project undertaken during a seminar held at t
 
 Find the code for data retrieval(scraping) and processing in [this repo](https://github.com/jstet/Basel_Convention_Scraper).
 
-## Devolopment
+## Development
 The components contain their own READMEs with additional instructions regarding development
 
 
